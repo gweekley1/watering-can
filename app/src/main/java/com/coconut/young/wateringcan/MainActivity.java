@@ -19,10 +19,19 @@ import java.util.Date;
 import java.util.List;
 
 /*
- * TODO: Add app description here
  * TODO: Improve look of app, specifically alignment and placement of fields on different devices
+ * TODO:  as well as making prettier list entries
  * TODO: add "Watered today" toggle to list entries
+ * TODO: add alarm schedule to set above boolean and deliver notifications/change icon
  * TODO: Update README.md
+ *
+ * Watering Can is a lightweight app for tracking when you should water your plants. Each
+ * watering schedule is a list entry on the main activity. Each entry tells you which plant it
+ * refers to, when it next needs to be watered, and how often it needs to be watered. When adding
+ * a schedule, you enter the plant's/schedule's name, the reference date by which the schedule
+ * schedule is calculated (in MM/DD/YY format), and the how often to water the plant (in days)
+ *
+ * @author G Weekley
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -75,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 // to edit an item, pass it's info to the EditActivity
                 myIntent.putExtra("update", posit);
                 myIntent.putExtra("name", item.getName());
-                myIntent.putExtra("date", PlantSchedule.DATE_FORMAT.format(item.getNextDate()));
+                myIntent.putExtra("date", PlantSchedule.DATE_FORMAT.format(item.getRefDate()));
                 myIntent.putExtra("interval", item.getWaterInterval());
                 startActivityForResult(myIntent, 1);
             }
@@ -134,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (PlantSchedule sched : scheduleList) {
             listAsString += sched.getName() + PART_SEPARATOR
-                    + PlantSchedule.DATE_FORMAT.format(sched.getNextDate()) + PART_SEPARATOR
+                    + PlantSchedule.DATE_FORMAT.format(sched.getRefDate()) + PART_SEPARATOR
                     + sched.getWaterInterval() + SCHEDULE_SEPARATOR;
         }
 

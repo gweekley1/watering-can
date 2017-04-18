@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  *  Holds the information needed to determine when a plant needs to be watered
@@ -12,25 +11,40 @@ import java.util.concurrent.TimeUnit;
 public class PlantSchedule {
 
     private String name;
-    private Date nextDate;
+    private Date refDate = new Date();
     private int waterInterval;
 
-    public static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateInstance();
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy");
+    public static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
 
-    public PlantSchedule(String name, Date nextDate, int waterInterval) {
+    public PlantSchedule(String name, Date refDate, int waterInterval) {
         this.name = name;
-        this.nextDate = nextDate;
-        this.nextDate.setHours(6);
-        this.nextDate.setMinutes(0);
-        this.nextDate.setSeconds(0);
+        // Ensure that the reference date is before the current date
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        while (currentTime < refDate.getTime()) {
+            refDate.setTime(refDate.getTime() - waterInterval * ONE_DAY_IN_MILLISECONDS);
+        }
+        // Set the clock of the reference date to 6 am, which the app considers the start of the day
+        this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
         this.waterInterval = waterInterval;
     }
 
     public String toString() {
-        return "Water " + name + " "
-                + (shouldWaterToday() ? "today" : "in " + getDaysToWater() + " days")
-                +  ", and every "
-                + waterInterval + " days";
+        String instruction = "Water " + name + " ";
+        if (shouldWaterToday()) {
+            instruction += "today";
+        } else if (getDaysToWater() == 1) {
+            instruction += "in " + getDaysToWater() + " day";
+        } else {
+            instruction += "in " + getDaysToWater() + " days";
+        }
+        if (waterInterval == 1) {
+            instruction += ", and every 1 day";
+        } else {
+            instruction += ", and every " + waterInterval + " days";
+        }
+
+        return instruction;
     }
 
     public boolean shouldWaterToday() {
@@ -39,9 +53,9 @@ public class PlantSchedule {
     }
 
     private int getDaysToWater() {
-        long timeDiff = Calendar.getInstance().getTimeInMillis() - nextDate.getTime();
-        int days = (int) Math.floor(TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS));
-        return days;
+        long timeDiff = Calendar.getInstance().getTimeInMillis() - refDate.getTime();
+        int days = (int) (timeDiff / ONE_DAY_IN_MILLISECONDS);
+        return days % waterInterval;
     }
 
     /*
@@ -55,16 +69,16 @@ public class PlantSchedule {
         return name;
     }
 
-    public void setNextDate(Date newDate) {
-        nextDate = newDate;
+    public void setRefDate(Date newDate) {
+        refDate = newDate;
     }
 
-    public Date getNextDate() {
-        return nextDate;
+    public Date getRefDate() {
+        return refDate;
     }
 
     public String getFormattedNextDate() {
-        return DATE_FORMAT.format(nextDate);
+        return DATE_FORMAT.format(refDate);
     }
 
     public void setWaterInterval(int newInterval) {
