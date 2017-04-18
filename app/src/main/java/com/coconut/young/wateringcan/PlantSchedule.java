@@ -13,6 +13,7 @@ public class PlantSchedule {
     private String name;
     private Date refDate = new Date();
     private int waterInterval;
+    private boolean waterToday = false;
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy");
     public static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
@@ -27,6 +28,8 @@ public class PlantSchedule {
         // Set the clock of the reference date to 6 am, which the app considers the start of the day
         this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
         this.waterInterval = waterInterval;
+
+        this.waterToday = shouldWaterToday();
     }
 
     public String toString() {
@@ -87,5 +90,13 @@ public class PlantSchedule {
 
     public int getWaterInterval() {
         return waterInterval;
+    }
+
+    public void setWaterToday(boolean waterToday) {
+        this.waterToday = waterToday;
+    }
+
+    public boolean getWaterToday() {
+        return waterToday;
     }
 }

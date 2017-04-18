@@ -8,6 +8,15 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <receiver android:name=".MainActivity$AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.coconut.young.wateringcan" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

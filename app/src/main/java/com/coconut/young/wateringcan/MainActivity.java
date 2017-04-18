@@ -1,5 +1,8 @@
 package com.coconut.young.wateringcan;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "WateringCan";
 
-    private List<PlantSchedule> scheduleList;
-    private ArrayAdapter<PlantSchedule> adapter;
+    private static List<PlantSchedule> scheduleList;
+    private static PlantScheduleAdapter adapter;
 
     private SharedPreferences sharedPref;
     // these strings are used while saving the list of PlantSchedules as a string
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sharedPref = getPreferences(Context.MODE_PRIVATE);
+        scheduleList = loadScheduleList();
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
@@ -67,11 +71,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        scheduleList = loadScheduleList();
-
         ListView listView = (ListView) findViewById(android.R.id.list);
 
-        adapter = new ArrayAdapter<>(MainActivity.this,
+        adapter = new PlantScheduleAdapter(MainActivity.this,
                 android.R.layout.simple_list_item_1,
                 scheduleList);
         assert listView != null;
@@ -91,6 +93,22 @@ public class MainActivity extends AppCompatActivity {
         });
         adapter.notifyDataSetChanged();
 
+        // set up the alarm intent to update every schedule's icon
+        Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        // calculate epoch time of the next 6:30 am in the device's timezone
+        Calendar c = Calendar.getInstance();
+        long timeZoneDif = c.getTimeZone().getOffset(c.getTimeInMillis());
+        long when = c.getTimeInMillis()
+                - (c.getTimeInMillis() % PlantSchedule.ONE_DAY_IN_MILLISECONDS)
+                - timeZoneDif + (long) (1000*60*60*6.5);
+        if (when < c.getTimeInMillis()) {
+            when += PlantSchedule.ONE_DAY_IN_MILLISECONDS;
+        }
+        Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
     }
 
     // this method is called when returning from the EditActivity
@@ -172,6 +190,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return list;
+    }
+
+    // this BroadcastReceiver updates every PlantSchedule's waterToday boolean
+    public static class AlarmReceiver extends BroadcastReceiver {
+
+        public AlarmReceiver() { }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "In AlarmReceiver");
+            for (PlantSchedule sched : scheduleList) {
+                sched.setWaterToday(sched.shouldWaterToday());
+            }
+            adapter.notifyDataSetChanged();
+        }
     }
 
 }
