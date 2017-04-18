@@ -28,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<PlantSchedule> adapter;
 
     private SharedPreferences sharedPref;
-
+    // these strings are used while saving the list of PlantSchedules as a string
     private static final String SCHEDULE_SEPARATOR = "%NEWSCHEDULE%";
     private static final String PART_SEPARATOR = "%PART%";
+    private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +40,14 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = getPreferences(Context.MODE_PRIVATE);
 
+        // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(MainActivity.this, EditActivity.class);
+                // pass it the current date by default
                 myIntent.putExtra("date", PlantSchedule.DATE_FORMAT.format(Calendar.getInstance().getTime()));
                 startActivityForResult(myIntent, 1);
             }
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int posit, long l) {
                 PlantSchedule item = adapter.getItem(posit);
                 Intent myIntent = new Intent(MainActivity.this, EditActivity.class);
+                // to edit an item, pass it's info to the EditActivity
                 myIntent.putExtra("update", posit);
                 myIntent.putExtra("name", item.getName());
                 myIntent.putExtra("date", PlantSchedule.DATE_FORMAT.format(item.getNextDate()));
@@ -75,39 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    // this method is called when returning from the EditActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -126,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Got result " + update + " " + name + " " + PlantSchedule.DATE_FORMAT.format(nextDate) + " " + waterInterval);
                 PlantSchedule newSchedule = new PlantSchedule(name, nextDate, waterInterval);
 
+                // is this PlantSchedule a new one or replacing an old one?
                 if (update != -1) {
                     scheduleList.add(update, newSchedule);
                     scheduleList.remove(update + 1);
@@ -139,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // converts scheduleList to a string and saves it in persistent storage
     private void saveScheduleList() {
 
         String listAsString = "";
@@ -151,14 +125,14 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "Saving " + listAsString);
 
-        sharedPref.edit().putString("savedSchedules", listAsString).apply();
+        sharedPref.edit().putString(PERSISTENT_SCHEDULES, listAsString).apply();
     }
 
+    // load the string from persistent storage and convert it to a list
     private List<PlantSchedule> loadScheduleList() {
 
         List<PlantSchedule> list = new ArrayList<>();
-
-        String unformattedList = sharedPref.getString("savedSchedules", "");
+        String unformattedList = sharedPref.getString(PERSISTENT_SCHEDULES, "");
 
         Log.i(TAG, "Loaded " + unformattedList);
 

@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 /**
- * Created by grant on 4/17/17.
+ * The Activity used to add or edit a PlantSchedule
  */
 public class EditActivity extends Activity {
 
@@ -24,6 +24,7 @@ public class EditActivity extends Activity {
 
         final Intent intent = getIntent();
 
+        // Fill the fields with passed data
         final EditText nameInput = (EditText) findViewById(R.id.nameInput);
         setText(nameInput, intent.getStringExtra("name"));
 

@@ -1,14 +1,13 @@
 package com.coconut.young.wateringcan;
 
-import android.text.format.DateUtils;
-
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by grant on 4/17/17.
+ *  Holds the information needed to determine when a plant needs to be watered
  */
 public class PlantSchedule {
 
@@ -16,7 +15,7 @@ public class PlantSchedule {
     private Date nextDate;
     private int waterInterval;
 
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy");
+    public static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateInstance();
 
     public PlantSchedule(String name, Date nextDate, int waterInterval) {
         this.name = name;
@@ -28,11 +27,26 @@ public class PlantSchedule {
     }
 
     public String toString() {
-        return "Water " + name + (shouldWaterToday() ? " today! " : " on ")
-                + DATE_FORMAT.format(nextDate)
-                + ", every " + waterInterval + " days";
+        return "Water " + name + " "
+                + (shouldWaterToday() ? "today" : "in " + getDaysToWater() + " days")
+                +  ", and every "
+                + waterInterval + " days";
     }
 
+    public boolean shouldWaterToday() {
+        int days = getDaysToWater();
+        return days >= 0 && days % waterInterval == 0;
+    }
+
+    private int getDaysToWater() {
+        long timeDiff = Calendar.getInstance().getTimeInMillis() - nextDate.getTime();
+        int days = (int) Math.floor(TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS));
+        return days;
+    }
+
+    /*
+     * Setters and Getters
+     */
     public void setName(String newName) {
         name = newName;
     }
@@ -60,11 +74,4 @@ public class PlantSchedule {
     public int getWaterInterval() {
         return waterInterval;
     }
-
-    public boolean shouldWaterToday() {
-        long timeDiff = Calendar.getInstance().getTimeInMillis() - nextDate.getTime();
-        int days = (int) Math.floor(TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS));
-        return days >= 0 && days % waterInterval == 0;
-    }
-
 }
