@@ -85,6 +85,14 @@
             android:id="@+id/cancelButton"
             android:layout_marginTop="15dp"
             android:layout_marginStart="10dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"
+            android:id="@+id/deleteButton"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="10dp" />
     </LinearLayout>
 
 </LinearLayout>

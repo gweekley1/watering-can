@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 
 /*
- * TODO: Add delete button
  * TODO: Add app description here
  * TODO: Improve look of app, specifically alignment and placement of fields on different devices
  * TODO: add "Watered today" toggle to list entries
@@ -90,7 +89,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == 1) {
-            if(resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
+                int update = data.getIntExtra("update", -1);
+
+                if (data.getBooleanExtra("delete", false)) {
+                    Log.i(TAG, "Deleting " + update);
+                    scheduleList.remove(update);
+                    adapter.notifyDataSetChanged();
+                    saveScheduleList();
+                    return;
+                }
+
                 String name = data.getStringExtra("name");
                 Date nextDate = null;
                 try {
@@ -99,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 int waterInterval = data.getIntExtra("interval", -1);
-                int update = data.getIntExtra("update", -1);
+
 
                 Log.i(TAG, "Got result " + update + " " + name + " " + PlantSchedule.DATE_FORMAT.format(nextDate) + " " + waterInterval);
                 PlantSchedule newSchedule = new PlantSchedule(name, nextDate, waterInterval);

@@ -65,6 +65,22 @@ public class EditActivity extends Activity {
                 finish();
             }
         });
+
+        Button deleteButton = (Button) findViewById(R.id.deleteButton);
+        final int update = intent.getIntExtra("update", -1);
+        if (update == -1) {
+            deleteButton.setVisibility(View.GONE);
+        }
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("update", update);
+                returnIntent.putExtra("delete", true);
+                setResult(RESULT_OK, returnIntent);
+                finish();
+            }
+        });
     }
 
     @Override
