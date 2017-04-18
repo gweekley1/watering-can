@@ -55,7 +55,7 @@ public class PlantSchedule {
     private int getDaysToWater() {
         long timeDiff = Calendar.getInstance().getTimeInMillis() - refDate.getTime();
         int days = (int) (timeDiff / ONE_DAY_IN_MILLISECONDS);
-        return days % waterInterval;
+        return waterInterval - (days % waterInterval);
     }
 
     /*
