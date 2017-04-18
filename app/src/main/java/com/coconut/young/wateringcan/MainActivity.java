@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,6 +17,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+/*
+ * TODO: Add delete button
+ * TODO: Add app description here
+ * TODO: Improve look of app, specifically alignment and placement of fields on different devices
+ * TODO: add "Watered today" toggle to list entries
+ * TODO: Update README.md
+ */
 
 public class MainActivity extends AppCompatActivity {
 
