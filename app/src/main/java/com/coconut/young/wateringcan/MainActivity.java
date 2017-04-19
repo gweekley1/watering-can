@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.text.ParseException;
@@ -22,12 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 /*
- * TODO: Improve look of app, specifically alignment and placement of fields on different devices
- * TODO:  as well as making prettier list entries
- * TODO: add "Watered today" toggle to list entries
- * TODO: add alarm schedule to set above boolean and deliver notifications/change icon
- * TODO: Update README.md
- *
  * Watering Can is a lightweight app for tracking when you should water your plants. Each
  * watering schedule is a list entry on the main activity. Each entry tells you which plant it
  * refers to, when it next needs to be watered, and how often it needs to be watered. When adding
