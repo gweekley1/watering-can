@@ -1,7 +1,9 @@
 package com.coconut.young.wateringcan;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,11 +40,14 @@ public class MainActivity extends AppCompatActivity {
     private static List<PlantSchedule> scheduleList;
     private static PlantScheduleAdapter adapter;
 
-    private SharedPreferences sharedPref;
+    private static SharedPreferences sharedPref;
     // these strings are used while saving the list of PlantSchedules as a string
     private static final String SCHEDULE_SEPARATOR = "%NEWSCHEDULE%";
     private static final String PART_SEPARATOR = "%PART%";
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
+
+    private static NotificationManager notificationManager;
+    private static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         scheduleList = loadScheduleList();
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        context = getApplicationContext();
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
@@ -101,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             when += PlantSchedule.ONE_DAY_IN_MILLISECONDS;
         }
         Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
     }
 
     @Override
@@ -156,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // converts scheduleList to a string and saves it in persistent storage
-    private void saveScheduleList() {
+    private static void saveScheduleList() {
 
         String listAsString = "";
 
@@ -202,11 +210,43 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "In AlarmReceiver");
+            int numPlants = 0;
             for (PlantSchedule sched : scheduleList) {
-                sched.setWaterToday(sched.shouldWaterToday());
+                boolean waterToday = sched.shouldWaterToday();
+                sched.setWaterToday(waterToday);
+                if (waterToday)
+                    ++numPlants;
             }
+
             adapter.notifyDataSetChanged();
+            if (numPlants > 0) {
+                saveScheduleList();
+                displayNotification(numPlants);
+            }
         }
+    }
+
+    public static void displayNotification(int numPlants) {
+
+        String notificationString = numPlants + (numPlants > 1 ? " plants need" : " plant needs") + " to be watered";
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context)
+                        .setAutoCancel(true)
+                        .setSmallIcon(R.drawable.wateringcan_active)
+                        .setContentTitle("Watering Can")
+                        .setContentText(notificationString);
+
+        Intent intent = new Intent(context, MainActivity.class);
+
+        // build a fake stack so the back button will work properly
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+        notificationManager.notify(0, builder.build());
     }
 
 }
