@@ -32,6 +32,20 @@ public class PlantSchedule {
         this.waterToday = shouldWaterToday();
     }
 
+    public PlantSchedule(String name, Date refDate, int waterInterval, boolean waterToday) {
+        this.name = name;
+        // Ensure that the reference date is before the current date
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        while (currentTime < refDate.getTime()) {
+            refDate.setTime(refDate.getTime() - waterInterval * ONE_DAY_IN_MILLISECONDS);
+        }
+        // Set the clock of the reference date to 6 am, which the app considers the start of the day
+        this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
+        this.waterInterval = waterInterval;
+
+        this.waterToday = waterToday;
+    }
+
     public String toString() {
         String instruction = "Water " + name + " ";
         if (shouldWaterToday()) {

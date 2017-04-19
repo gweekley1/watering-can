@@ -10,8 +10,7 @@
         android:theme="@style/AppTheme">
 
         <receiver android:name=".MainActivity$AlarmReceiver"
-            android:enabled="true"
-            android:exported="true" >
+            android:enabled="true">
             <intent-filter>
                 <action android:name="com.coconut.young.wateringcan" />
             </intent-filter>

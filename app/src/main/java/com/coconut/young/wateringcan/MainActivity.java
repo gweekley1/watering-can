@@ -111,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveScheduleList();
+    }
+
     // this method is called when returning from the EditActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -154,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     // converts scheduleList to a string and saves it in persistent storage
     private void saveScheduleList() {
 
@@ -162,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
         for (PlantSchedule sched : scheduleList) {
             listAsString += sched.getName() + PART_SEPARATOR
                     + PlantSchedule.DATE_FORMAT.format(sched.getRefDate()) + PART_SEPARATOR
-                    + sched.getWaterInterval() + SCHEDULE_SEPARATOR;
+                    + sched.getWaterInterval() + PART_SEPARATOR
+                    + sched.getWaterToday() + SCHEDULE_SEPARATOR;
         }
 
         Log.i(TAG, "Saving " + listAsString);
@@ -182,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             for (String date : unformattedList.split(SCHEDULE_SEPARATOR)) {
                 String[] parts= date.split(PART_SEPARATOR);
                 try {
-                    list.add(new PlantSchedule(parts[0], PlantSchedule.DATE_FORMAT.parse(parts[1]), Integer.valueOf(parts[2])));
+                    list.add(new PlantSchedule(parts[0], PlantSchedule.DATE_FORMAT.parse(parts[1]), Integer.valueOf(parts[2]), Boolean.valueOf(parts[3])));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
