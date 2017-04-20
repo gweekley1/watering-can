@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -233,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                         .setAutoCancel(true)
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+                                R.drawable.wateringcan_active))
                         .setSmallIcon(R.drawable.wateringcan_active)
                         .setContentTitle("Watering Can")
                         .setContentText(notificationString);
