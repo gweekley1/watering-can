@@ -229,16 +229,15 @@ public class MainActivity extends AppCompatActivity {
 
     public static void displayNotification(int numPlants) {
 
-        String notificationString = numPlants + (numPlants > 1 ? " plants need" : " plant needs") + " to be watered";
+        String notificationString = numPlants + (numPlants == 1 ? " plant needs" : " plants need") + " to be watered";
 
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                         .setAutoCancel(true)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-                                R.drawable.wateringcan_active))
-                        .setSmallIcon(R.drawable.wateringcan_active)
+                        .setSmallIcon(R.drawable.wateringcan_notification)
                         .setContentTitle("Watering Can")
-                        .setContentText(notificationString);
+                        .setContentText(notificationString)
+                        .setColor(context.getResources().getColor(R.color.colorPrimaryDark));
 
         Intent intent = new Intent(context, MainActivity.class);
 
@@ -250,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setContentIntent(pendingIntent);
 
         notificationManager.notify(0, builder.build());
+        Log.i(TAG, "Displayed notification");
     }
 
 }
