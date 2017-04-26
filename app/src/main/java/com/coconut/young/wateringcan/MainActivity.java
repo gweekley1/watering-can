@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             when += PlantSchedule.ONE_DAY_IN_MILLISECONDS;
         }
         Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
-        alarmManager.setInexactRepeating(AlarmManager.RTC, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
     }
 
     @Override
@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
                     ++numPlants;
             }
 
-            adapter.notifyDataSetChanged();
             if (numPlants > 0) {
+                adapter.notifyDataSetChanged();
                 saveScheduleList();
                 displayNotification(numPlants);
             }
