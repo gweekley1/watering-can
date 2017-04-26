@@ -1,6 +1,12 @@
 package com.coconut.young.wateringcan;
 
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -9,6 +15,8 @@ import java.util.Date;
  *  Holds the information needed to determine when a plant needs to be watered
  */
 public class PlantSchedule {
+
+    private static final String TAG = MainActivity.TAG + "." + PlantSchedule.class.getSimpleName();
 
     private String name;
     private Date refDate = new Date();
@@ -40,25 +48,24 @@ public class PlantSchedule {
     }
 
     /*
-     * Constructor to build a plant schedule
+     * Constructor to build a plant schedule from a JSONObject
+     * used to load stored PlantSchedules from persistent storage
      *
-     * @param name the plant's display name
-     * @param refDate the date used to calculate when to water
-     * @param waterInterval how often to water the plant, in days
-     * @param waterToday whether or not the plant should be watered today
+     * @param json must hold the keys: `name`,`interval`,`water`,`date`
      */
-    public PlantSchedule(String name, Date refDate, int waterInterval, boolean waterToday) {
-        this.name = name;
-        // Ensure that the reference date is before the current date
-        long currentTime = Calendar.getInstance().getTimeInMillis();
-        while (currentTime < refDate.getTime()) {
-            refDate.setTime(refDate.getTime() - waterInterval * ONE_DAY_IN_MILLISECONDS);
-        }
-        // Set the clock of the reference date to 6 am, which the app considers the start of the day
-        this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
-        this.waterInterval = waterInterval;
+    public PlantSchedule(JSONObject json) {
+        try {
+            this.name = json.getString("name");
+            this.waterInterval = json.getInt("interval");
+            this.waterToday = json.getBoolean("water");
 
-        this.waterToday = waterToday;
+            Date tempRef = DATE_FORMAT.parse(json.getString("date"));
+            this.refDate.setTime(tempRef.getTime() - (tempRef.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
+        } catch (JSONException e) {
+            Log.e(TAG, "Exception building PlantSchedule from JSON");
+        } catch (ParseException e) {
+            Log.e(TAG, "Exception parsing PlantSchedule.refDate from JSON");
+        }
     }
 
     // the string is formatted to display to the user on the MainActivity

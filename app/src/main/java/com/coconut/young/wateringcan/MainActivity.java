@@ -8,15 +8,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -42,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
     private static PlantScheduleAdapter adapter;
 
     private static SharedPreferences sharedPref;
-    // these strings are used while saving the list of PlantSchedules as a string
-    private static final String SCHEDULE_SEPARATOR = "%NEWSCHEDULE%";
-    private static final String PART_SEPARATOR = "%PART%";
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
     private static NotificationManager notificationManager;
@@ -167,18 +167,25 @@ public class MainActivity extends AppCompatActivity {
     // converts scheduleList to a string and saves it in persistent storage
     private static void saveScheduleList() {
 
-        String listAsString = "";
+        JSONArray savedArray = new JSONArray();
 
         for (PlantSchedule sched : scheduleList) {
-            listAsString += sched.getName() + PART_SEPARATOR
-                    + PlantSchedule.DATE_FORMAT.format(sched.getRefDate()) + PART_SEPARATOR
-                    + sched.getWaterInterval() + PART_SEPARATOR
-                    + sched.getWaterToday() + SCHEDULE_SEPARATOR;
+            JSONObject schedJson = new JSONObject();
+
+            try {
+                schedJson.put("name", sched.getName());
+                schedJson.put("date", PlantSchedule.DATE_FORMAT.format(sched.getRefDate()));
+                schedJson.put("interval", sched.getWaterInterval());
+                schedJson.put("water", sched.getWaterToday());
+                savedArray.put(schedJson);
+            } catch (JSONException e) {
+                Log.e(TAG, "Exception while saving PlantSchedule");
+            }
         }
 
-        Log.i(TAG, "Saving " + listAsString);
+        Log.i(TAG, "Saving " + savedArray.toString());
 
-        sharedPref.edit().putString(PERSISTENT_SCHEDULES, listAsString).apply();
+        sharedPref.edit().putString(PERSISTENT_SCHEDULES, savedArray.toString()).apply();
     }
 
     // load the string from persistent storage and convert it to a list
@@ -189,15 +196,13 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "Loaded " + unformattedList);
 
-        if (!unformattedList.equals("")) {
-            for (String date : unformattedList.split(SCHEDULE_SEPARATOR)) {
-                String[] parts= date.split(PART_SEPARATOR);
-                try {
-                    list.add(new PlantSchedule(parts[0], PlantSchedule.DATE_FORMAT.parse(parts[1]), Integer.valueOf(parts[2]), Boolean.valueOf(parts[3])));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+        try {
+            JSONArray savedArray = new JSONArray(unformattedList);
+            for (int i = 0; i < savedArray.length(); ++i) {
+                list.add(new PlantSchedule(savedArray.getJSONObject(i)));
             }
+        } catch (JSONException e) {
+            Log.e(TAG, "Exception loading PlantSchedule");
         }
 
         return list;
