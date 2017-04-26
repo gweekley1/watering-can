@@ -44,6 +44,7 @@ public class EditActivity extends Activity {
                 int waterInterval = Integer.valueOf(intervalInput.getText().toString());
 
                 Intent returnIntent = new Intent();
+                // which list entry is being updated, if any (-1 for a new entry)
                 int update = intent.getIntExtra("update", -1);
                 if (update != -1) {
                     returnIntent.putExtra("update", update);

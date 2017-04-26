@@ -18,6 +18,13 @@ public class PlantSchedule {
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy");
     public static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
 
+    /*
+     * Constructor to build a plant schedule, evaluates and sets waterToday
+     *
+     * @param name the plant's display name
+     * @param refDate the date used to calculate when to water
+     * @param waterInterval how often to water the plant, in days
+     */
     public PlantSchedule(String name, Date refDate, int waterInterval) {
         this.name = name;
         // Ensure that the reference date is before the current date
@@ -32,6 +39,14 @@ public class PlantSchedule {
         this.waterToday = shouldWaterToday();
     }
 
+    /*
+     * Constructor to build a plant schedule
+     *
+     * @param name the plant's display name
+     * @param refDate the date used to calculate when to water
+     * @param waterInterval how often to water the plant, in days
+     * @param waterToday whether or not the plant should be watered today
+     */
     public PlantSchedule(String name, Date refDate, int waterInterval, boolean waterToday) {
         this.name = name;
         // Ensure that the reference date is before the current date
@@ -46,6 +61,7 @@ public class PlantSchedule {
         this.waterToday = waterToday;
     }
 
+    // the string is formatted to display to the user on the MainActivity
     public String toString() {
         String instruction = "Water " + name + " ";
         if (shouldWaterToday()) {

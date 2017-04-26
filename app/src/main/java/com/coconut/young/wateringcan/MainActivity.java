@@ -227,6 +227,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+     * Displays a notification informing the user that plants need to be watered
+     *
+     * @param numPlants the number of plants that need to be watered
+     */
     public static void displayNotification(int numPlants) {
 
         String notificationString = numPlants + (numPlants == 1 ? " plant needs" : " plants need") + " to be watered";
