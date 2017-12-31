@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  *  Holds the information needed to determine when a plant needs to be watered
@@ -23,8 +24,9 @@ public class PlantSchedule {
     private int waterInterval;
     private boolean waterToday = false;
 
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy");
-    public static final int ONE_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
+    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
+    public static final int HALF_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 12;
+    public static final int ONE_DAY_IN_MILLISECONDS = HALF_DAY_IN_MILLISECONDS * 2;
 
     /*
      * Constructor to build a plant schedule, evaluates and sets waterToday
@@ -43,6 +45,7 @@ public class PlantSchedule {
         // Set the clock of the reference date to 6 am, which the app considers the start of the day
         this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
         this.waterInterval = waterInterval;
+        updateReferenceDate();
 
         this.waterToday = shouldWaterToday();
     }
@@ -69,6 +72,7 @@ public class PlantSchedule {
     }
 
     // the string is formatted to display to the user on the MainActivity
+    // it is in format: Water <name> <today|in # day(s)>, and every <# day(s)>
     public String toString() {
         String instruction = "Water " + name + " ";
         if (shouldWaterToday()) {
@@ -93,9 +97,25 @@ public class PlantSchedule {
     }
 
     private int getDaysToWater() {
+        return waterInterval - (getDaysAfterReferenceDate() % waterInterval);
+    }
+
+    /**
+     * Update the reference date to the most recent watering day
+     */
+    public void updateReferenceDate() {
+        int days = getDaysAfterReferenceDate();
+        Calendar c = Calendar.getInstance();
+        c.setTime(refDate);
+        c.add(Calendar.DATE, (days / waterInterval) * waterInterval);
+        Log.d(TAG, String.format("Updating reference date from %s to %s",
+                DATE_FORMAT.format(refDate), DATE_FORMAT.format(c.getTime())));
+        refDate = c.getTime();
+    }
+
+    private int getDaysAfterReferenceDate() {
         long timeDiff = Calendar.getInstance().getTimeInMillis() - refDate.getTime();
-        int days = (int) (timeDiff / ONE_DAY_IN_MILLISECONDS);
-        return waterInterval - (days % waterInterval);
+        return (int) (timeDiff / ONE_DAY_IN_MILLISECONDS);
     }
 
     /*

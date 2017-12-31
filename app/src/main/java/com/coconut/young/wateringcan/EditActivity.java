@@ -43,18 +43,22 @@ public class EditActivity extends Activity {
                 String nextDate = dateInput.getText().toString();
                 int waterInterval = Integer.valueOf(intervalInput.getText().toString());
 
-                Intent returnIntent = new Intent();
-                // which list entry is being updated, if any (-1 for a new entry)
-                int update = intent.getIntExtra("update", -1);
-                if (update != -1) {
-                    returnIntent.putExtra("update", update);
-                }
+                if (waterInterval <= 0) {
 
-                returnIntent.putExtra("name", name);
-                returnIntent.putExtra("date", nextDate);
-                returnIntent.putExtra("interval", waterInterval);
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                } else {
+                    Intent returnIntent = new Intent();
+                    // which list entry is being updated, if any (-1 for a new entry)
+                    int update = intent.getIntExtra("update", -1);
+                    if (update != -1) {
+                        returnIntent.putExtra("update", update);
+                    }
+
+                    returnIntent.putExtra("name", name);
+                    returnIntent.putExtra("date", nextDate);
+                    returnIntent.putExtra("interval", waterInterval);
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
+                }
             }
         });
 

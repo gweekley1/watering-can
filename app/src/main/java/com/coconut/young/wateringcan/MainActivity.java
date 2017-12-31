@@ -96,27 +96,19 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         // set up the alarm intent to update every schedule's icon
-        Intent alarmIntent = new Intent(getApplicationContext(), AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarmIntent, 0);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        // calculate epoch time of the next 6:30 am in the device's timezone
-        Calendar c = Calendar.getInstance();
-        long timeZoneDif = c.getTimeZone().getOffset(c.getTimeInMillis());
-        long when = c.getTimeInMillis()
-                - (c.getTimeInMillis() % PlantSchedule.ONE_DAY_IN_MILLISECONDS)
-                - timeZoneDif + (long) (1000*60*60*6.5);
-        if (when < c.getTimeInMillis()) {
-            when += PlantSchedule.ONE_DAY_IN_MILLISECONDS;
-        }
-        Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_DAY, alarmPendingIntent);
+       scheduleNextAlarm(getApplicationContext());
     }
 
     @Override
     public void onPause() {
         super.onPause();
         saveScheduleList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        scheduleNextAlarm(getApplicationContext());
     }
 
     // this method is called when returning from the EditActivity
@@ -161,8 +153,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
 
     // converts scheduleList to a string and saves it in persistent storage
     private static void saveScheduleList() {
@@ -218,10 +208,15 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "In AlarmReceiver");
             int numPlants = 0;
             for (PlantSchedule sched : scheduleList) {
+
+                sched.updateReferenceDate();
+
                 boolean waterToday = sched.shouldWaterToday();
+                boolean alreadySet = sched.getWaterToday();
                 sched.setWaterToday(waterToday);
-                if (waterToday)
+                if (!alreadySet && waterToday) {
                     ++numPlants;
+                }
             }
 
             if (numPlants > 0) {
@@ -229,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 saveScheduleList();
                 displayNotification(numPlants);
             }
+            scheduleNextAlarm(context);
         }
     }
 
@@ -260,6 +256,29 @@ public class MainActivity extends AppCompatActivity {
 
         notificationManager.notify(0, builder.build());
         Log.i(TAG, "Displayed notification");
+    }
+
+    /**
+     * Schedule an alarm for the next 6:30 (am or pm) that will repeat approximately every 12 hours
+     *
+     * @param context
+     */
+    private static void scheduleNextAlarm(Context context) {
+        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        // calculate epoch time of the next 6:30 in the device's timezone
+        Calendar c = Calendar.getInstance();
+        long timeZoneDif = c.getTimeZone().getOffset(c.getTimeInMillis());
+        long when = c.getTimeInMillis()
+                - (c.getTimeInMillis() % PlantSchedule.HALF_DAY_IN_MILLISECONDS)
+                - timeZoneDif + (long) (1000*60*60*6.5);
+        if (when < c.getTimeInMillis()) {
+            when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
+        }
+        Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_HALF_DAY, alarmPendingIntent);
     }
 
 }
