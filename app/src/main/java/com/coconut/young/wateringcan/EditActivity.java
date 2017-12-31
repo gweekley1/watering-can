@@ -1,6 +1,7 @@
 package com.coconut.young.wateringcan;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -44,6 +45,11 @@ public class EditActivity extends Activity {
                 int waterInterval = Integer.valueOf(intervalInput.getText().toString());
 
                 if (waterInterval <= 0) {
+                    AlertDialog.Builder warningBuilder = new AlertDialog.Builder(EditActivity.this);
+                    warningBuilder.setTitle("Invalid Schedule")
+                        .setMessage("Please enter a positive number of days")
+                        .setNeutralButton("OK", null);
+                    warningBuilder.show();
 
                 } else {
                     Intent returnIntent = new Intent();
