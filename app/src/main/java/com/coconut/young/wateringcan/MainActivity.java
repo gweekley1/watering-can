@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         saveScheduleList();
+        scheduleNextAlarm(getApplicationContext());
     }
 
     @Override
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // load the string from persistent storage and convert it to a list
-    private List<PlantSchedule> loadScheduleList() {
+    private static List<PlantSchedule> loadScheduleList() {
 
         List<PlantSchedule> list = new ArrayList<>();
         String unformattedList = sharedPref.getString(PERSISTENT_SCHEDULES, "");
@@ -206,6 +207,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "In AlarmReceiver");
+
+            if (scheduleList == null) {
+                scheduleList = loadScheduleList();
+            }
+
             int numPlants = 0;
             for (PlantSchedule sched : scheduleList) {
 
@@ -265,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static void scheduleNextAlarm(Context context) {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // calculate epoch time of the next 6:30 in the device's timezone
