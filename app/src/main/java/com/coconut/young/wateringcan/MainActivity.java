@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -212,6 +213,16 @@ public class MainActivity extends AppCompatActivity {
                 scheduleList = loadScheduleList();
             }
 
+            SimpleDateFormat timeParser = new SimpleDateFormat("hh:mm");
+            Date noonTime;
+            Date currentTime = new Date();
+            try {
+                noonTime = timeParser.parse("12:00");
+            } catch (ParseException e) {
+                Log.wtf(TAG, "Exception parsing a constant String \"06:30\" with a SimpleDateFormat");
+                return;
+            }
+
             int numPlants = 0;
             for (PlantSchedule sched : scheduleList) {
 
@@ -220,15 +231,18 @@ public class MainActivity extends AppCompatActivity {
                 boolean waterToday = sched.shouldWaterToday();
                 boolean alreadySet = sched.getWaterToday();
                 sched.setWaterToday(waterToday);
-                if (!alreadySet && waterToday) {
+
+                // if this is the 6:30 PM alarm and the plant should be watered today,
+                // but waterToday is false, we assume that it has been watered and do not count it
+                if (!(currentTime.after(noonTime) && !alreadySet) && waterToday) {
                     ++numPlants;
                 }
             }
 
             if (numPlants > 0) {
                 adapter.notifyDataSetChanged();
-                saveScheduleList();
                 displayNotification(numPlants);
+                saveScheduleList();
             }
             scheduleNextAlarm(context);
         }
