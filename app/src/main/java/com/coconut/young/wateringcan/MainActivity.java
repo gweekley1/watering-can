@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /*
  * Watering Can is a lightweight app for tracking when you should water your plants. Each
@@ -213,28 +214,21 @@ public class MainActivity extends AppCompatActivity {
                 scheduleList = loadScheduleList();
             }
 
-            SimpleDateFormat timeParser = new SimpleDateFormat("hh:mm");
-            Date noonTime;
-            Date currentTime = new Date();
-            try {
-                noonTime = timeParser.parse("12:00");
-            } catch (ParseException e) {
-                Log.wtf(TAG, "Exception parsing a constant String \"06:30\" with a SimpleDateFormat");
-                return;
-            }
+            SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
+            String noonTime = "12:00";
+            String currentTime= timeParser.format(new Date());
 
             int numPlants = 0;
             for (PlantSchedule sched : scheduleList) {
 
                 sched.updateReferenceDate();
 
-                boolean waterToday = sched.shouldWaterToday();
                 boolean alreadySet = sched.getWaterToday();
-                sched.setWaterToday(waterToday);
 
                 // if this is the 6:30 PM alarm and the plant should be watered today,
                 // but waterToday is false, we assume that it has been watered and do not count it
-                if (!(currentTime.after(noonTime) && !alreadySet) && waterToday) {
+                if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
+                    sched.setWaterToday(true);
                     ++numPlants;
                 }
             }
@@ -297,8 +291,14 @@ public class MainActivity extends AppCompatActivity {
         if (when < c.getTimeInMillis()) {
             when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
         }
-        Log.i(TAG, "Scheduling alarm in " + (when - c.getTimeInMillis()) + " ms");
+
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_HALF_DAY, alarmPendingIntent);
+
+        long timeToAlarm = (when - c.getTimeInMillis()) / 1000;
+        Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
+                (timeToAlarm % 3600) / 60,
+                (timeToAlarm % 60)
+        ));
     }
 
 }
