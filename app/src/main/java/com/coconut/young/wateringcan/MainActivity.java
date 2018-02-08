@@ -282,11 +282,12 @@ public class MainActivity extends AppCompatActivity {
 
         // calculate epoch time of the next 6:30 in the device's timezone
         Calendar c = Calendar.getInstance();
-        long timeZoneDif = c.getTimeZone().getOffset(c.getTimeInMillis());
-        long when = c.getTimeInMillis()
-                - (c.getTimeInMillis() % PlantSchedule.HALF_DAY_IN_MILLISECONDS)
-                - timeZoneDif + (long) (1000*60*60*6.5);
-        if (when < c.getTimeInMillis()) {
+        long currentTime = c.getTimeInMillis();
+        long timeZoneDiff = c.getTimeZone().getOffset(currentTime);
+        long when = currentTime
+                - ((currentTime - timeZoneDiff) % PlantSchedule.HALF_DAY_IN_MILLISECONDS)
+                + (long) (1000*60*60*6.75);
+        if (when < currentTime) {
             when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
         }
 
