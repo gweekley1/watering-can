@@ -286,14 +286,14 @@ public class MainActivity extends AppCompatActivity {
         long timeZoneDiff = c.getTimeZone().getOffset(currentTime);
         long when = currentTime
                 - ((currentTime - timeZoneDiff) % PlantSchedule.HALF_DAY_IN_MILLISECONDS)
-                + (long) (1000*60*60*6.75);
+                + (long) (1000*60*60*6.5);
         if (when < currentTime) {
             when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
         }
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_HALF_DAY, alarmPendingIntent);
 
-        long timeToAlarm = (when - c.getTimeInMillis()) / 1000;
+        long timeToAlarm = (when - currentTime) / 1000;
         Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
                 (timeToAlarm % 3600) / 60,
                 (timeToAlarm % 60)
