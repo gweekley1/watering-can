@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
     private static NotificationManager notificationManager;
-    private static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         scheduleList = loadScheduleList();
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        context = getApplicationContext();
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
@@ -235,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (numPlants > 0) {
                 adapter.notifyDataSetChanged();
-                displayNotification(numPlants);
+                displayNotification(numPlants, context);
                 saveScheduleList();
             }
             scheduleNextAlarm(context);
@@ -247,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param numPlants the number of plants that need to be watered
      */
-    public static void displayNotification(int numPlants) {
+    public static void displayNotification(int numPlants, Context context) {
 
         String notificationString = numPlants + (numPlants == 1 ? " plant needs" : " plants need") + " to be watered";
 
