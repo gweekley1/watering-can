@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -70,6 +71,19 @@ public class MainActivity extends AppCompatActivity {
                 // pass it the current date by default
                 myIntent.putExtra("date", PlantSchedule.DATE_FORMAT.format(Calendar.getInstance().getTime()));
                 startActivityForResult(myIntent, 1);
+            }
+        });
+
+        // The "Debug Menu" button, opens the DebugActivity
+        ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
+        assert debugButton != null;
+        debugButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
+                myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
+                myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
+                startActivity(myIntent);
             }
         });
 
@@ -208,6 +222,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "In AlarmReceiver");
 
+            sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
+
             if (scheduleList == null) {
                 scheduleList = loadScheduleList();
             }
@@ -292,6 +308,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_HALF_DAY, alarmPendingIntent);
+
+        Date nextAlarm = new Date();
+        nextAlarm.setTime(when);
+        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, nextAlarm.toString()).apply();
 
         long timeToAlarm = (when - currentTime) / 1000;
         Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
