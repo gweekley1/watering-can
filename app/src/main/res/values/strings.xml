@@ -9,6 +9,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="debug_version">Version is %1$s</string>
     <string name="debug_next">Alarm will run at %1$s</string>
     <string name="debug_last">Alarm last ran at %1$s</string>
     <string name="debug">Debug</string>

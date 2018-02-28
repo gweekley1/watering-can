@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.coconut.young.wateringcan.utils.Utilities;
@@ -59,6 +61,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // The "Debug Menu" button, opens the DebugActivity.
+        // This button is invisible until the user names a plant "DEBUG"
+        ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
+        assert debugButton != null;
+        debugButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
+                myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
+                myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
+                startActivity(myIntent);
+            }
+        });
+        debugButton.setVisibility(ImageView.INVISIBLE);
+
         ListView listView = (ListView) findViewById(android.R.id.list);
 
         adapter = new PlantScheduleAdapter(MainActivity.this,
@@ -106,6 +123,15 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
+
+                String name = data.getStringExtra("name");
+                if (DebugActivity.DEBUG.equals(name)) {
+                    ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
+                    assert debugButton != null;
+                    debugButton.setVisibility(ImageButton.VISIBLE);
+                    return;
+                }
+
                 int update = data.getIntExtra("update", -1);
 
                 if (data.getBooleanExtra("delete", false)) {
@@ -116,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
-                String name = data.getStringExtra("name");
+
                 Date nextDate = null;
                 try {
                     nextDate = PlantSchedule.DATE_FORMAT.parse(data.getStringExtra("date"));

@@ -40,9 +40,14 @@ public class EditActivity extends Activity {
 
                 String name = nameInput.getText().toString();
                 String nextDate = dateInput.getText().toString();
-                int waterInterval = Integer.valueOf(intervalInput.getText().toString());
+                int waterInterval = 0;
+                try {
+                    waterInterval = Integer.valueOf(intervalInput.getText().toString());
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
 
-                if (waterInterval <= 0) {
+                if (waterInterval <= 0 && !DebugActivity.DEBUG.equals(name)) {
                     AlertDialog.Builder warningBuilder = new AlertDialog.Builder(EditActivity.this);
                     warningBuilder.setTitle("Invalid Schedule")
                         .setMessage("Please enter a positive number of days")
