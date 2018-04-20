@@ -75,19 +75,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // The "Debug Menu" button, opens the DebugActivity
-        ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
-        assert debugButton != null;
-        debugButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
-                myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
-                myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
-                startActivity(myIntent);
-            }
-        });
-
         ListView listView = (ListView) findViewById(android.R.id.list);
 
         adapter = new PlantScheduleAdapter(MainActivity.this,
