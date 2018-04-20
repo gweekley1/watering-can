@@ -14,8 +14,8 @@ public class DebugActivity extends Activity {
 
     public static final String TAG = "DebugWateringCan";
 
-    protected static final String DEBUG_NEXT = "nextAlarm";
-    protected static final String DEBUG_LAST = "lastAlarm";
+    public static final String DEBUG_NEXT = "nextAlarm";
+    public static final String DEBUG_LAST = "lastAlarm";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

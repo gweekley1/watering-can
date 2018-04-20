@@ -1,34 +1,24 @@
 package com.coconut.young.wateringcan;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.coconut.young.wateringcan.utils.Utilities;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /*
  * Watering Can is a lightweight app for tracking when you should water your plants. Each
@@ -43,24 +33,20 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "WateringCan";
+    /*Package-Private*/ static final String SHARED_PREFERENCES_NAME = "WateringCanPreferences";
 
     private static List<PlantSchedule> scheduleList;
-    private static PlantScheduleAdapter adapter;
+    public static PlantScheduleAdapter adapter;
 
     private static SharedPreferences sharedPref;
-    private static final String PERSISTENT_SCHEDULES = "savedSchedules";
-
-    private static NotificationManager notificationManager;
-    private static final int ALARM_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
-        scheduleList = loadScheduleList();
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        sharedPref = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        scheduleList = Utilities.loadScheduleList(sharedPref);
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
@@ -98,20 +84,20 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         // set up the alarm intent to update every schedule's icon
-       scheduleNextAlarm(getApplicationContext());
+       Utilities.scheduleNextAlarm(getApplicationContext(),sharedPref);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        saveScheduleList();
-        scheduleNextAlarm(getApplicationContext());
+        Utilities.saveScheduleList(sharedPref, scheduleList);
+        Utilities.scheduleNextAlarm(getApplicationContext(), sharedPref);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        scheduleNextAlarm(getApplicationContext());
+        Utilities.scheduleNextAlarm(getApplicationContext(), sharedPref);
     }
 
     // this method is called when returning from the EditActivity
@@ -126,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "Deleting " + update);
                     scheduleList.remove(update);
                     adapter.notifyDataSetChanged();
-                    saveScheduleList();
+                    Utilities.saveScheduleList(sharedPref, scheduleList);
                     return;
                 }
 
@@ -152,161 +138,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 adapter.notifyDataSetChanged();
-                saveScheduleList();
+                Utilities.saveScheduleList(sharedPref, scheduleList);
             }
         }
-    }
-
-    // converts scheduleList to a string and saves it in persistent storage
-    private static void saveScheduleList() {
-
-        JSONArray savedArray = new JSONArray();
-
-        for (PlantSchedule sched : scheduleList) {
-            JSONObject schedJson = new JSONObject();
-
-            try {
-                schedJson.put("name", sched.getName());
-                schedJson.put("date", PlantSchedule.DATE_FORMAT.format(sched.getRefDate()));
-                schedJson.put("interval", sched.getWaterInterval());
-                schedJson.put("water", sched.getWaterToday());
-                savedArray.put(schedJson);
-            } catch (JSONException e) {
-                Log.e(TAG, "Exception while saving PlantSchedule");
-            }
-        }
-
-        Log.i(TAG, "Saving " + savedArray.toString());
-
-        sharedPref.edit().putString(PERSISTENT_SCHEDULES, savedArray.toString()).apply();
-    }
-
-    // load the string from persistent storage and convert it to a list
-    private static List<PlantSchedule> loadScheduleList() {
-
-        List<PlantSchedule> list = new ArrayList<>();
-        String unformattedList = sharedPref.getString(PERSISTENT_SCHEDULES, "");
-
-        Log.i(TAG, "Loaded " + unformattedList);
-
-        try {
-            JSONArray savedArray = new JSONArray(unformattedList);
-            for (int i = 0; i < savedArray.length(); ++i) {
-                list.add(new PlantSchedule(savedArray.getJSONObject(i)));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Exception loading PlantSchedule");
-        }
-
-        return list;
-    }
-
-    // this BroadcastReceiver updates every PlantSchedule's waterToday boolean
-    public static class AlarmReceiver extends BroadcastReceiver {
-
-        public AlarmReceiver() { }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "In AlarmReceiver");
-
-            sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
-
-            if (scheduleList == null) {
-                scheduleList = loadScheduleList();
-            }
-
-            SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
-            String noonTime = "12:00";
-            String currentTime= timeParser.format(new Date());
-
-            int numPlants = 0;
-            for (PlantSchedule sched : scheduleList) {
-
-                sched.updateReferenceDate();
-
-                boolean alreadySet = sched.getWaterToday();
-
-                // if this is the 6:30 PM alarm and the plant should be watered today,
-                // but waterToday is false, we assume that it has been watered and do not count it
-                if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
-                    sched.setWaterToday(true);
-                    ++numPlants;
-                }
-            }
-
-            if (numPlants > 0) {
-                adapter.notifyDataSetChanged();
-                displayNotification(numPlants, context);
-                saveScheduleList();
-            }
-            scheduleNextAlarm(context);
-        }
-    }
-
-    /*
-     * Displays a notification informing the user that plants need to be watered
-     *
-     * @param numPlants the number of plants that need to be watered
-     */
-    public static void displayNotification(int numPlants, Context context) {
-
-        String notificationString = numPlants + (numPlants == 1 ? " plant needs" : " plants need") + " to be watered";
-
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(context)
-                        .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.wateringcan_notification)
-                        .setContentTitle("Watering Can")
-                        .setContentText(notificationString)
-                        .setColor(context.getResources().getColor(R.color.colorPrimaryDark));
-
-        Intent intent = new Intent(context, MainActivity.class);
-
-        // build a fake stack so the back button will work properly
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(MainActivity.class);
-        stackBuilder.addNextIntent(intent);
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
-
-        notificationManager.notify(0, builder.build());
-        Log.i(TAG, "Displayed notification");
-    }
-
-    /**
-     * Schedule an alarm for the next 6:30 (am or pm) that will repeat approximately every 12 hours
-     *
-     * @param context
-     */
-    private static void scheduleNextAlarm(Context context) {
-        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, ALARM_REQUEST_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        assert alarmManager != null;
-
-        // calculate epoch time of the next 6:30 in the device's timezone
-        Calendar c = Calendar.getInstance();
-        long currentTime = c.getTimeInMillis();
-        long timeZoneDiff = c.getTimeZone().getOffset(currentTime);
-        long when = currentTime
-                - ((currentTime - timeZoneDiff) % PlantSchedule.HALF_DAY_IN_MILLISECONDS)
-                + (long) (1000*60*60*6.5);
-        if (when < currentTime) {
-            when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
-        }
-
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, alarmPendingIntent);
-
-        Date nextAlarm = new Date();
-        nextAlarm.setTime(when);
-        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, nextAlarm.toString()).apply();
-
-        long timeToAlarm = (when - currentTime) / 1000;
-        Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
-                (timeToAlarm % 3600) / 60,
-                (timeToAlarm % 60)
-        ));
     }
 
 }
