@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                 displayNotification(numPlants, context);
                 saveScheduleList();
             }
+            scheduleNextAlarm(context);
         }
     }
 
@@ -282,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, ALARM_REQUEST_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        assert alarmManager != null;
 
         // calculate epoch time of the next 6:30 in the device's timezone
         Calendar c = Calendar.getInstance();
@@ -294,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
             when += PlantSchedule.HALF_DAY_IN_MILLISECONDS;
         }
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, AlarmManager.INTERVAL_HALF_DAY, alarmPendingIntent);
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, alarmPendingIntent);
 
         Date nextAlarm = new Date();
         nextAlarm.setTime(when);
