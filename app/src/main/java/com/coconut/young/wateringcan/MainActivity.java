@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
     private static NotificationManager notificationManager;
+    private static final int ALARM_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
                 displayNotification(numPlants, context);
                 saveScheduleList();
             }
-            scheduleNextAlarm(context);
         }
     }
 
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static void scheduleNextAlarm(Context context) {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, ALARM_REQUEST_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         // calculate epoch time of the next 6:30 in the device's timezone
