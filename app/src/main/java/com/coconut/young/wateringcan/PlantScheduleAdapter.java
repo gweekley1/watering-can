@@ -53,9 +53,9 @@ public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
     // replaces the image of an ImageView with an icon showing if the plant should be watered
     private void setIcon(PlantSchedule sched, ImageView imageView) {
         if (sched.getWaterToday()) {
-            imageView.setImageResource(R.drawable.wateringcan_active);
+            imageView.setImageResource(R.drawable.wateringcan_active2);
         } else {
-            imageView.setImageResource(R.drawable.wateringcan);
+            imageView.setImageResource(R.drawable.wateringcan2);
         }
     }
 
