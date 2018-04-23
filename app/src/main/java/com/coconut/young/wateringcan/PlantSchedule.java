@@ -26,7 +26,7 @@ public class PlantSchedule {
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
     public static final int HALF_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 12;
-    public static final int ONE_DAY_IN_MILLISECONDS = HALF_DAY_IN_MILLISECONDS * 2;
+    private static final int ONE_DAY_IN_MILLISECONDS = HALF_DAY_IN_MILLISECONDS * 2;
 
     /*
      * Constructor to build a plant schedule, evaluates and sets waterToday
@@ -35,7 +35,7 @@ public class PlantSchedule {
      * @param refDate the date used to calculate when to water
      * @param waterInterval how often to water the plant, in days
      */
-    public PlantSchedule(String name, Date refDate, int waterInterval) {
+    /*Package-Private*/ PlantSchedule(String name, Date refDate, int waterInterval) {
         this.name = name;
         // Ensure that the reference date is before the current date
         long currentTime = Calendar.getInstance().getTimeInMillis();

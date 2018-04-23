@@ -1,7 +1,5 @@
 package com.coconut.young.wateringcan;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -72,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int posit, long l) {
                 PlantSchedule item = adapter.getItem(posit);
+                assert item != null;
+
                 Intent myIntent = new Intent(MainActivity.this, EditActivity.class);
                 // to edit an item, pass it's info to the EditActivity
                 myIntent.putExtra("update", posit);
@@ -84,20 +84,20 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         // set up the alarm intent to update every schedule's icon
-       Utilities.scheduleNextAlarm(getApplicationContext(),sharedPref);
+       Utilities.scheduleNextAlarm(MainActivity.this,sharedPref);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Utilities.saveScheduleList(sharedPref, scheduleList);
-        Utilities.scheduleNextAlarm(getApplicationContext(), sharedPref);
+        Utilities.scheduleNextAlarm(MainActivity.this, sharedPref);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Utilities.scheduleNextAlarm(getApplicationContext(), sharedPref);
+        Utilities.scheduleNextAlarm(MainActivity.this, sharedPref);
     }
 
     // this method is called when returning from the EditActivity
@@ -123,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                int waterInterval = data.getIntExtra("interval", -1);
+                assert nextDate != null;
 
+                int waterInterval = data.getIntExtra("interval", -1);
 
                 Log.i(TAG, "Got result " + update + " " + name + " " + PlantSchedule.DATE_FORMAT.format(nextDate) + " " + waterInterval);
                 PlantSchedule newSchedule = new PlantSchedule(name, nextDate, waterInterval);

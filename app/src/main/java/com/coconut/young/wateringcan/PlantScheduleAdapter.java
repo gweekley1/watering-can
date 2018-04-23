@@ -1,6 +1,7 @@
 package com.coconut.young.wateringcan;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,13 @@ import java.util.List;
  * Each view contains an icon indicating plantSchedule.waterToday and plantSchedule.toString()
  */
 public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
-    public PlantScheduleAdapter(Context context, int resource, List<PlantSchedule> list) {
+    /*Package-Private*/ PlantScheduleAdapter(Context context, int resource, List<PlantSchedule> list) {
         super(context, resource, list);
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
 
         if (view == null) {
@@ -30,6 +32,7 @@ public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
         }
 
         final PlantSchedule sched = getItem(position);
+        assert sched != null;
 
         // set the icon
         final ImageView imageView = (ImageView) view.findViewById(R.id.schedule_icon);

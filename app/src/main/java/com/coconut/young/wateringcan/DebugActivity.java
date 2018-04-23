@@ -12,8 +12,6 @@ import android.widget.TextView;
  */
 public class DebugActivity extends Activity {
 
-    public static final String TAG = "DebugWateringCan";
-
     public static final String DEBUG_NEXT = "nextAlarm";
     public static final String DEBUG_LAST = "lastAlarm";
 
@@ -55,12 +53,6 @@ public class DebugActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setText(TextView field, String text) {
-        if (text == null)
-            text = "";
-        field.setText(text);
     }
 
 }

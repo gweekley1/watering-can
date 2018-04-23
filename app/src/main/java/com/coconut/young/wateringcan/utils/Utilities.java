@@ -83,12 +83,12 @@ public class Utilities {
     /**
      * Schedule an alarm for the next 6:30 (am or pm) that will repeat approximately every 12 hours
      *
-     * @param context
+     * @param context The context to use to build Intents and get Services
      * @param sharedPref the SharedPreferences to store the alarm execution debug info
      */
     public static void scheduleNextAlarm(Context context, SharedPreferences sharedPref) {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 1, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 1, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         assert alarmManager != null;
 
@@ -105,7 +105,7 @@ public class Utilities {
         }
         long when = c.getTimeInMillis();
 
-        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, alarmPendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, PlantSchedule.HALF_DAY_IN_MILLISECONDS, alarmPendingIntent);
 
         Date nextAlarm = new Date();
         nextAlarm.setTime(when);

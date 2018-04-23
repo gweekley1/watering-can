@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <receiver android:name="AlarmReceiver"
+        <receiver android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

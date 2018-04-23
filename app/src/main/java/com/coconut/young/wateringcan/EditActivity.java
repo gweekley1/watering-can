@@ -15,8 +15,6 @@ import android.widget.EditText;
  */
 public class EditActivity extends Activity {
 
-    public static final String TAG = "EditWateringCan";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
