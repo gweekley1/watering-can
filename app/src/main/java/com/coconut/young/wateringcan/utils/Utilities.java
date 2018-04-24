@@ -116,7 +116,7 @@ public class Utilities {
         // The job is persistent and can be idle or not, charging or not, and on any network (or lack thereof)
         JobInfo jobInfo = new JobInfo.Builder(1, jobComponent)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
-                .setOverrideDeadline(millisBeforeNextJob)
+                .setMinimumLatency(millisBeforeNextJob)
                 .setRequiresDeviceIdle(false)
                 .setRequiresCharging(false)
                 .setPersisted(true)
