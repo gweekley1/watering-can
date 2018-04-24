@@ -101,20 +101,20 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         // set up the alarm intent to update every schedule's icon
-       Utilities.scheduleNextAlarm(MainActivity.this,sharedPref);
+       Utilities.scheduleNextJob(MainActivity.this,sharedPref);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Utilities.saveScheduleList(sharedPref, scheduleList);
-        Utilities.scheduleNextAlarm(MainActivity.this, sharedPref);
+        Utilities.scheduleNextJob(MainActivity.this, sharedPref);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Utilities.scheduleNextAlarm(MainActivity.this, sharedPref);
+        Utilities.scheduleNextJob(MainActivity.this, sharedPref);
     }
 
     // this method is called when returning from the EditActivity

@@ -1,14 +1,14 @@
 package com.coconut.young.wateringcan.utils;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.coconut.young.wateringcan.AlarmReceiver;
 import com.coconut.young.wateringcan.DebugActivity;
+import com.coconut.young.wateringcan.NotificationJobService;
 import com.coconut.young.wateringcan.PlantSchedule;
 
 import org.json.JSONArray;
@@ -79,18 +79,13 @@ public class Utilities {
         return list;
     }
 
-
     /**
-     * Schedule an alarm for the next 6:30 (am or pm) that will repeat approximately every 12 hours
+     * Schedule a job for the next 6:30 (am or pm) that will repeat approximately every 12 hours
      *
-     * @param context The context to use to build Intents and get Services
+     * @param context The context to use to build Components and get Services
      * @param sharedPref the SharedPreferences to store the alarm execution debug info
      */
-    public static void scheduleNextAlarm(Context context, SharedPreferences sharedPref) {
-        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(context, 1, alarmIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        assert alarmManager != null;
+    public static void scheduleNextJob(Context context, SharedPreferences sharedPref) {
 
         // calculate the time of the next 6:30 in the device's timezone
         Calendar c = Calendar.getInstance();
@@ -105,17 +100,32 @@ public class Utilities {
         }
         long when = c.getTimeInMillis();
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, when, PlantSchedule.HALF_DAY_IN_MILLISECONDS, alarmPendingIntent);
+        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, c.getTime().toString()).apply();
 
-        Date nextAlarm = new Date();
-        nextAlarm.setTime(when);
-        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, nextAlarm.toString()).apply();
+        long millisBeforeNextJob = when - currentTime.getTime();
 
-        long timeToAlarm = (when - currentTime.getTime()) / 1000;
+        long timeToAlarm = millisBeforeNextJob / 1000;
         Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
                 (timeToAlarm % 3600) / 60,
                 (timeToAlarm % 60)
         ));
+
+        ComponentName jobComponent = new ComponentName(context, NotificationJobService.class);
+
+        // Create JobInfo specifying that the job needs to run at a specific time, then every 12 hours
+        // The job is persistent and can be idle or not, charging or not, and on any network (or lack thereof)
+        JobInfo jobInfo = new JobInfo.Builder(1, jobComponent)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
+                .setOverrideDeadline(millisBeforeNextJob)
+                .setRequiresDeviceIdle(false)
+                .setRequiresCharging(false)
+                .setPersisted(true)
+                .build();
+
+        // Schedule the job
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        assert jobScheduler != null;
+        jobScheduler.schedule(jobInfo);
     }
 
 }

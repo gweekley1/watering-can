@@ -6,5 +6,5 @@ refers to, when it next needs to be watered, and how often it needs to be watere
 a schedule, you enter the plant's/schedule's name, the reference date by which the schedule
 schedule is calculated (in MM/DD/YY format), and the how often to water the plant (in days).
 
-The app considers 6 am the start of the day, meaning the "days until watering" will decrement
+The app considers 6:30 am the start of the day, meaning the "days until watering" will decrement
 then, not at midnight 

@@ -3,11 +3,12 @@ package com.coconut.young.wateringcan;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import com.coconut.young.wateringcan.utils.Utilities;
@@ -20,19 +21,21 @@ import java.util.Locale;
 import static com.coconut.young.wateringcan.MainActivity.SHARED_PREFERENCES_NAME;
 
 /**
- * This BroadcastReceiver updates every PlantSchedule's waterToday boolean
+ * This JobService loads the PlantSchedules from SharedPreferences, determines how many plants
+ * need to be watered, and displays a notification if that number is > 0
+ * This job is scheduled for every 6:30 AM and PM
  */
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class NotificationJobService extends JobService {
 
-    private static final String TAG = "WateringCan/Alarm";
-
-    public AlarmReceiver() { }
+    private static final String TAG = "WateringCan/Service";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.i(TAG, "In AlarmReceiver");
+    public boolean onStartJob(JobParameters params) {
 
-        SharedPreferences sharedPref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        Log.i(TAG, "In NotificationJobService");
+
+        // Store the current time that the Job is running
+        SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
         List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
@@ -58,9 +61,18 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         if (numPlants > 0) {
             MainActivity.adapter.notifyDataSetChanged();
-            displayNotification(numPlants, context);
+            displayNotification(numPlants, this);
             Utilities.saveScheduleList(sharedPref, scheduleList);
         }
+
+        // Periodic jobs can't be scheduled for a specific time so this Job must reschedule itself
+        Utilities.scheduleNextJob(this, sharedPref);
+        return false;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        return false;
     }
 
     /*
@@ -94,5 +106,4 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         notificationManager.notify(0, builder.build());
         Log.i(TAG, "Displayed notification");
     }
-
 }
