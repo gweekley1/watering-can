@@ -26,6 +26,9 @@ public class Utilities {
 
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
+    private static final long THIRTY_MINUTES_IN_MILLIS = 1000*60*30;
+    private static final long TWO_HOURS_IN_MILLIS = 1000*60*60*2;
+
     /**
      * Converts scheduleList to a string and saves it in persistent storage
      *
@@ -117,6 +120,8 @@ public class Utilities {
         JobInfo jobInfo = new JobInfo.Builder(1, jobComponent)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
                 .setMinimumLatency(millisBeforeNextJob)
+                .setBackoffCriteria(THIRTY_MINUTES_IN_MILLIS, JobInfo.BACKOFF_POLICY_LINEAR)
+                .setOverrideDeadline(millisBeforeNextJob + TWO_HOURS_IN_MILLIS)
                 .setRequiresDeviceIdle(false)
                 .setRequiresCharging(false)
                 .setPersisted(true)
