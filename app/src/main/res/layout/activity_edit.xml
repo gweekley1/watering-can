@@ -15,7 +15,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/name"
-            android:id="@+id/nameLabel"
             android:layout_gravity="bottom"
             android:layout_marginBottom="3dp"
             android:layout_marginStart="15dp" />
@@ -26,7 +25,9 @@
             android:id="@+id/nameInput"
             android:layout_gravity="center_horizontal"
             android:layout_marginStart="10dp"
-            android:maxLines="1" />
+            android:inputType="text"
+            android:maxLines="1"
+            android:hint="@string/name_hint" />
     </LinearLayout>
 
     <LinearLayout
@@ -40,7 +41,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/start_date"
-            android:id="@+id/startLabel"
             android:layout_gravity="bottom"
             android:layout_marginBottom="3dp"
             android:layout_marginStart="15dp" />
@@ -52,7 +52,8 @@
             android:id="@+id/dateInput"
             android:layout_gravity="fill_horizontal"
             android:layout_marginStart="10dp"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:hint="@string/date_hint" />
         </LinearLayout>
 
     <LinearLayout
@@ -66,7 +67,6 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/interval"
-            android:id="@+id/intervalLabel"
             android:layout_gravity="bottom"
             android:layout_marginBottom="3dp"
             android:layout_marginStart="10dp" />
@@ -78,17 +78,16 @@
             android:ems="3"
             android:id="@+id/intervalInput"
             android:layout_gravity="fill_horizontal"
-            android:autoText="false"
             android:maxLines="1"
             android:selectAllOnFocus="false"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:hint="@string/interval_hint" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/days"
-            android:id="@+id/textView"
             android:layout_marginBottom="3dp"
             android:layout_gravity="bottom"/>
     </LinearLayout>
@@ -101,18 +100,18 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/save"
-            android:id="@+id/saveButton"
-            android:layout_marginTop="15dp"
-            android:layout_marginStart="50dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:id="@+id/cancelButton"
             android:layout_marginTop="15dp"
             android:layout_marginStart="10dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:id="@+id/saveButton"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="50dp" />
 
         <Button
             android:layout_width="wrap_content"

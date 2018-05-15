@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         scheduleList = Utilities.loadScheduleList(sharedPref);
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_plant);
+        FloatingActionButton fab = findViewById(R.id.add_plant);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         // The "Debug Menu" button, opens the DebugActivity.
         // This button is invisible until the user names a plant "DEBUG"
-        ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
+        ImageButton debugButton = findViewById(R.id.debug);
         assert debugButton != null;
         debugButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,15 +71,15 @@ public class MainActivity extends AppCompatActivity {
                 Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
                 myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
                 myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
+                myIntent.putExtra(DebugActivity.DEBUG_JOB_ERROR, sharedPref.getString(DebugActivity.DEBUG_JOB_ERROR, "N/A"));
                 startActivity(myIntent);
             }
         });
         debugButton.setVisibility(ImageView.INVISIBLE);
 
-        ListView listView = (ListView) findViewById(android.R.id.list);
+        ListView listView = findViewById(android.R.id.list);
 
         adapter = new PlantScheduleAdapter(MainActivity.this,
-                android.R.layout.simple_list_item_1,
                 scheduleList);
         assert listView != null;
         listView.setAdapter(adapter);
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String name = data.getStringExtra("name");
                 if (DebugActivity.DEBUG.equals(name)) {
-                    ImageButton debugButton = (ImageButton) findViewById(R.id.debug);
+                    ImageButton debugButton = findViewById(R.id.debug);
                     assert debugButton != null;
                     debugButton.setVisibility(ImageButton.VISIBLE);
                     return;

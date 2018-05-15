@@ -17,6 +17,7 @@ public class DebugActivity extends Activity {
     public static final String DEBUG = "DEBUG";
     public static final String DEBUG_NEXT = "nextAlarm";
     public static final String DEBUG_LAST = "lastAlarm";
+    public static final String DEBUG_JOB_ERROR = "jobError";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +34,22 @@ public class DebugActivity extends Activity {
             e.printStackTrace();
         }
 
-        final TextView version = (TextView) findViewById(R.id.debug_version_text);
+        final TextView version = findViewById(R.id.debug_version_text);
         String versionText = getString(R.string.debug_version, versionName);
         version.setText(versionText);
 
         // Fill the fields with passed data
-        final TextView nextAlarm = (TextView) findViewById(R.id.debug_next_text);
+        final TextView nextAlarm = findViewById(R.id.debug_next_text);
         String nextAlarmText = getString(R.string.debug_next, intent.getStringExtra(DEBUG_NEXT));
         nextAlarm.setText(nextAlarmText);
 
-        final TextView lastAlarm = (TextView) findViewById(R.id.debug_last_text);
+        final TextView lastAlarm = findViewById(R.id.debug_last_text);
         String lastAlarmText = getString(R.string.debug_last, intent.getStringExtra(DEBUG_LAST));
         lastAlarm.setText(lastAlarmText);
+
+        final TextView lastJobError = findViewById(R.id.debug_job_error);
+        String lastJobErrorText = getString(R.string.debug_job_error, intent.getStringExtra(DEBUG_JOB_ERROR));
+        lastJobError.setText(lastJobErrorText);
 
     }
 

@@ -23,17 +23,17 @@ public class EditActivity extends Activity {
         final Intent intent = getIntent();
 
         // Fill the fields with passed data
-        final EditText nameInput = (EditText) findViewById(R.id.nameInput);
+        final EditText nameInput = findViewById(R.id.nameInput);
         setText(nameInput, intent.getStringExtra("name"));
 
-        final EditText dateInput = (EditText) findViewById(R.id.dateInput);
+        final EditText dateInput = findViewById(R.id.dateInput);
         setText(dateInput, intent.getStringExtra("date"));
 
-        final EditText intervalInput = (EditText) findViewById(R.id.intervalInput);
+        final EditText intervalInput = findViewById(R.id.intervalInput);
         int passedInterval = intent.getIntExtra("interval", -1);
         setText(intervalInput,  passedInterval == -1 ? "" : Integer.toString(passedInterval));
 
-        Button saveButton = (Button) findViewById(R.id.saveButton);
+        Button saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,7 +71,7 @@ public class EditActivity extends Activity {
             }
         });
 
-        Button cancelButton = (Button) findViewById(R.id.cancelButton);
+        Button cancelButton = findViewById(R.id.cancelButton);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,7 +80,7 @@ public class EditActivity extends Activity {
             }
         });
 
-        Button deleteButton = (Button) findViewById(R.id.deleteButton);
+        Button deleteButton = findViewById(R.id.deleteButton);
         final int update = intent.getIntExtra("update", -1);
         if (update == -1) {
             deleteButton.setVisibility(View.GONE);

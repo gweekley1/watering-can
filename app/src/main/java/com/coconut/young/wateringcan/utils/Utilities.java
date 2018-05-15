@@ -21,13 +21,13 @@ import java.util.Date;
 import java.util.List;
 
 import static com.coconut.young.wateringcan.MainActivity.TAG;
+import static com.coconut.young.wateringcan.PlantSchedule.HALF_DAY_IN_MILLISECONDS;
 
 public class Utilities {
 
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
-    private static final long THIRTY_MINUTES_IN_MILLIS = 1000*60*30;
-    private static final long TWO_HOURS_IN_MILLIS = 1000*60*60*2;
+    private static final long FIFTEEN_MINUTES_IN_MILLIS = 1000*60*15;
 
     /**
      * Converts scheduleList to a string and saves it in persistent storage
@@ -99,7 +99,7 @@ public class Utilities {
         c.set(Calendar.MILLISECOND,0);
 
         while (currentTime.after(c.getTime())) {
-            c.setTimeInMillis(c.getTimeInMillis() + PlantSchedule.HALF_DAY_IN_MILLISECONDS);
+            c.setTimeInMillis(c.getTimeInMillis() + HALF_DAY_IN_MILLISECONDS);
         }
         long when = c.getTimeInMillis();
 
@@ -120,8 +120,8 @@ public class Utilities {
         JobInfo jobInfo = new JobInfo.Builder(1, jobComponent)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
                 .setMinimumLatency(millisBeforeNextJob)
-                .setBackoffCriteria(THIRTY_MINUTES_IN_MILLIS, JobInfo.BACKOFF_POLICY_LINEAR)
-                .setOverrideDeadline(millisBeforeNextJob + TWO_HOURS_IN_MILLIS)
+                .setBackoffCriteria(FIFTEEN_MINUTES_IN_MILLIS, JobInfo.BACKOFF_POLICY_EXPONENTIAL)
+                .setOverrideDeadline(millisBeforeNextJob + HALF_DAY_IN_MILLISECONDS)
                 .setRequiresDeviceIdle(false)
                 .setRequiresCharging(false)
                 .setPersisted(true)

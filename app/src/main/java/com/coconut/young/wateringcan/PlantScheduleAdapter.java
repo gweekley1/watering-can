@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -16,8 +17,8 @@ import java.util.List;
  * Each view contains an icon indicating plantSchedule.waterToday and plantSchedule.toString()
  */
 public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
-    /*Package-Private*/ PlantScheduleAdapter(Context context, int resource, List<PlantSchedule> list) {
-        super(context, resource, list);
+    /*Package-Private*/ PlantScheduleAdapter(Context context, List<PlantSchedule> list) {
+        super(context, android.R.layout.simple_list_item_1, list);
     }
 
     @NonNull
@@ -28,14 +29,14 @@ public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
         if (view == null) {
             LayoutInflater inflater;
             inflater = LayoutInflater.from(getContext());
-            view = inflater.inflate(R.layout.schedule_list_item, null);
+            view = inflater.inflate(R.layout.schedule_list_item, new LinearLayout(getContext()));
         }
 
         final PlantSchedule sched = getItem(position);
         assert sched != null;
 
         // set the icon
-        final ImageView imageView = (ImageView) view.findViewById(R.id.schedule_icon);
+        final ImageView imageView = view.findViewById(R.id.schedule_icon);
         setIcon(sched, imageView);
         // the user can toggle the boolean to indicate that they've watered the plant
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -47,7 +48,7 @@ public class PlantScheduleAdapter extends ArrayAdapter<PlantSchedule> {
         });
 
         // set the text
-        TextView textView = (TextView) view.findViewById(R.id.schedule_text);
+        TextView textView = view.findViewById(R.id.schedule_text);
         textView.setText(sched.toString());
 
         return view;

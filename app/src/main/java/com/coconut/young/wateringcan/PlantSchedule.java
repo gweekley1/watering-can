@@ -121,28 +121,13 @@ public class PlantSchedule {
     /*
      * Setters and Getters
      */
-    public void setName(String newName) {
-        name = newName;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setRefDate(Date newDate) {
-        refDate = newDate;
-    }
-
     public Date getRefDate() {
         return refDate;
-    }
-
-    public String getFormattedNextDate() {
-        return DATE_FORMAT.format(refDate);
-    }
-
-    public void setWaterInterval(int newInterval) {
-        waterInterval = newInterval;
     }
 
     public int getWaterInterval() {

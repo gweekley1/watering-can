@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/schedule_icon"
             android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:layout_height="50dp"
+            android:contentDescription="@string/sched_icon_description" />
 
         <TextView
             android:id="@+id/schedule_text"
@@ -19,6 +16,5 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:layout_marginStart="15dp" />
 
-    </LinearLayout>
 
 </LinearLayout>

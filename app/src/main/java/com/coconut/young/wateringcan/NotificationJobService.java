@@ -33,40 +33,44 @@ public class NotificationJobService extends JobService {
     public boolean onStartJob(JobParameters params) {
 
         Log.i(TAG, "In NotificationJobService");
-
-        // Store the current time that the Job is running
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
-        List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
+        try {
+            // Store the current time that the Job is running
+            sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
-        SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
-        String noonTime = "12:00";
-        String currentTime= timeParser.format(new Date());
+            List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
 
-        int numPlants = 0;
-        for (PlantSchedule sched : scheduleList) {
+            SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
+            String noonTime = "12:00";
+            String currentTime= timeParser.format(new Date());
 
-            sched.updateReferenceDate();
+            int numPlants = 0;
+            for (PlantSchedule sched : scheduleList) {
 
-            boolean alreadySet = sched.getWaterToday();
+                sched.updateReferenceDate();
 
-            // if this is the 6:30 PM alarm and the plant should be watered today,
-            // but waterToday is false, we assume that it has been watered and do not count it
-            if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
-                sched.setWaterToday(true);
-                ++numPlants;
+                boolean alreadySet = sched.getWaterToday();
+
+                // if this is the 6:30 PM alarm and the plant should be watered today,
+                // but waterToday is false, we assume that it has been watered and do not count it
+                if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
+                    sched.setWaterToday(true);
+                    ++numPlants;
+                }
             }
-        }
 
-        if (numPlants > 0) {
-            MainActivity.adapter.notifyDataSetChanged();
-            displayNotification(numPlants, this);
-            Utilities.saveScheduleList(sharedPref, scheduleList);
-        }
+            if (numPlants > 0) {
+                MainActivity.adapter.notifyDataSetChanged();
+                displayNotification(numPlants, this);
+                Utilities.saveScheduleList(sharedPref, scheduleList);
+            }
 
-        // Periodic jobs can't be scheduled for a specific time so this Job must reschedule itself
-        Utilities.scheduleNextJob(this, sharedPref);
+            // Periodic jobs can't be scheduled for a specific time so this Job must reschedule itself
+            Utilities.scheduleNextJob(this, sharedPref);
+        } catch (Exception e) {
+            sharedPref.edit().putString(DebugActivity.DEBUG_JOB_ERROR, e.getMessage()).apply();
+        }
         return false;
     }
 
@@ -80,7 +84,7 @@ public class NotificationJobService extends JobService {
      *
      * @param numPlants the number of plants that need to be watered
      */
-    public static void displayNotification(int numPlants, Context context) {
+    private static void displayNotification(int numPlants, Context context) {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         assert notificationManager != null;
