@@ -11,7 +11,6 @@
     <string name="debug_version">Version is %1$s</string>
     <string name="debug_next">Alarm will run at %1$s</string>
     <string name="debug_last">Alarm last ran at %1$s</string>
-    <string name="debug_job_error">Last error was %1$s</string>
     <string name="debug">Debug</string>
     <string name="name_hint">Name of plant</string>
     <string name="date_hint">Date of watering</string>

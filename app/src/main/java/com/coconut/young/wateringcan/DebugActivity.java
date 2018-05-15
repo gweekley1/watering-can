@@ -17,7 +17,6 @@ public class DebugActivity extends Activity {
     public static final String DEBUG = "DEBUG";
     public static final String DEBUG_NEXT = "nextAlarm";
     public static final String DEBUG_LAST = "lastAlarm";
-    public static final String DEBUG_JOB_ERROR = "jobError";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +45,6 @@ public class DebugActivity extends Activity {
         final TextView lastAlarm = findViewById(R.id.debug_last_text);
         String lastAlarmText = getString(R.string.debug_last, intent.getStringExtra(DEBUG_LAST));
         lastAlarm.setText(lastAlarmText);
-
-        final TextView lastJobError = findViewById(R.id.debug_job_error);
-        String lastJobErrorText = getString(R.string.debug_job_error, intent.getStringExtra(DEBUG_JOB_ERROR));
-        lastJobError.setText(lastJobErrorText);
 
     }
 

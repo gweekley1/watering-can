@@ -35,42 +35,43 @@ public class NotificationJobService extends JobService {
         Log.i(TAG, "In NotificationJobService");
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        try {
-            // Store the current time that the Job is running
-            sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
-            List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
+        // Store the current time that the Job is running
+        sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
-            SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
-            String noonTime = "12:00";
-            String currentTime= timeParser.format(new Date());
+        List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
 
-            int numPlants = 0;
-            for (PlantSchedule sched : scheduleList) {
+        SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
+        String noonTime = "12:00";
+        String currentTime= timeParser.format(new Date());
 
-                sched.updateReferenceDate();
+        int numPlants = 0;
+        for (PlantSchedule sched : scheduleList) {
 
-                boolean alreadySet = sched.getWaterToday();
+            sched.updateReferenceDate();
 
-                // if this is the 6:30 PM alarm and the plant should be watered today,
-                // but waterToday is false, we assume that it has been watered and do not count it
-                if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
-                    sched.setWaterToday(true);
-                    ++numPlants;
-                }
+            boolean alreadySet = sched.getWaterToday();
+
+            // if this is the 6:30 PM alarm and the plant should be watered today,
+            // but waterToday is false, we assume that it has been watered and do not count it
+            if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
+                sched.setWaterToday(true);
+                ++numPlants;
             }
-
-            if (numPlants > 0) {
-                MainActivity.adapter.notifyDataSetChanged();
-                displayNotification(numPlants, this);
-                Utilities.saveScheduleList(sharedPref, scheduleList);
-            }
-
-            // Periodic jobs can't be scheduled for a specific time so this Job must reschedule itself
-            Utilities.scheduleNextJob(this, sharedPref);
-        } catch (Exception e) {
-            sharedPref.edit().putString(DebugActivity.DEBUG_JOB_ERROR, e.getMessage()).apply();
         }
+
+        if (numPlants > 0) {
+            displayNotification(numPlants, this);
+            Utilities.saveScheduleList(sharedPref, scheduleList);
+
+            if (MainActivity.adapter != null) {
+                MainActivity.adapter.notifyDataSetChanged();
+            }
+        }
+
+        // Periodic jobs can't be scheduled for a specific time so this Job must reschedule itself
+        Utilities.scheduleNextJob(this, sharedPref);
+
         return false;
     }
 

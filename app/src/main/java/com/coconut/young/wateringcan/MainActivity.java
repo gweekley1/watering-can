@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
                 myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
                 myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
-                myIntent.putExtra(DebugActivity.DEBUG_JOB_ERROR, sharedPref.getString(DebugActivity.DEBUG_JOB_ERROR, "N/A"));
                 startActivity(myIntent);
             }
         });
