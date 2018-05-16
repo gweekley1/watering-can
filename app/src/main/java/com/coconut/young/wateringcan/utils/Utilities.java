@@ -1,15 +1,19 @@
 package com.coconut.young.wateringcan.utils;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
 import com.coconut.young.wateringcan.DebugActivity;
 import com.coconut.young.wateringcan.NotificationJobService;
 import com.coconut.young.wateringcan.PlantSchedule;
+import com.coconut.young.wateringcan.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +28,8 @@ import static com.coconut.young.wateringcan.MainActivity.TAG;
 import static com.coconut.young.wateringcan.PlantSchedule.HALF_DAY_IN_MILLISECONDS;
 
 public class Utilities {
+
+    public static final String NOTIFICATION_CHANNEL_ID = "WateringCanChannel";
 
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
@@ -108,9 +114,10 @@ public class Utilities {
         long millisBeforeNextJob = when - currentTime.getTime();
 
         long timeToAlarm = millisBeforeNextJob / 1000;
-        Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s", timeToAlarm / 3600,
+        Log.i(TAG, String.format("Scheduled alarm in %s h %s m %s s  (= %s s)", timeToAlarm / 3600,
                 (timeToAlarm % 3600) / 60,
-                (timeToAlarm % 60)
+                (timeToAlarm % 60),
+                timeToAlarm
         ));
 
         ComponentName jobComponent = new ComponentName(context, NotificationJobService.class);
@@ -131,6 +138,28 @@ public class Utilities {
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert jobScheduler != null;
         jobScheduler.schedule(jobInfo);
+    }
+
+    /**
+     * Create the Notification channel if Android Version is O or newer
+     * This is necessary for notifications to work
+     *
+     * @param context The context used to get String resources and the NotificationManager
+     */
+    public static void createNotificationChannel(Context context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    context.getString(R.string.channel_name),
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription(context.getString(R.string.channel_description));
+
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
     }
 
 }

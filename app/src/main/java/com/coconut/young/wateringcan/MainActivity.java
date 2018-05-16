@@ -99,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
         });
         adapter.notifyDataSetChanged();
 
+        // create the notification channel
+        Utilities.createNotificationChannel(this);
+
         // set up the alarm intent to update every schedule's icon
        Utilities.scheduleNextJob(MainActivity.this,sharedPref);
     }

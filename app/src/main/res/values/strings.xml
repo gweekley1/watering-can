@@ -17,4 +17,6 @@
     <string name="interval_hint"> X </string>
     <string name="flower_border_description">Flower border for aesthetics</string>
     <string name="sched_icon_description">The icon for a Plant Schedule</string>
+    <string name="channel_name">WateringCanChannel</string>
+    <string name="channel_description">Notify user a plant needs watering</string>
 </resources>

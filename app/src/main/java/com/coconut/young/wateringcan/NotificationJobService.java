@@ -8,6 +8,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -92,12 +93,24 @@ public class NotificationJobService extends JobService {
 
         String notificationString = numPlants + (numPlants == 1 ? " plant needs" : " plants need") + " to be watered";
 
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(context)
-                        .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.wateringcan_notification)
-                        .setContentTitle("Watering Can")
-                        .setContentText(notificationString);
+        NotificationCompat.Builder builder;
+
+        // Only use the NotificationCompat.Builder ctor with NotificationChannels if
+        //  Android Version >= O and it is necessary
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(context, Utilities.NOTIFICATION_CHANNEL_ID)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.wateringcan_notification)
+                    .setContentTitle("Watering Can")
+                    .setContentText(notificationString);
+        } else {
+            builder = new NotificationCompat.Builder(context)
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.drawable.wateringcan_notification)
+                    .setContentTitle("Watering Can")
+                    .setContentText(notificationString);
+        }
+
 
         Intent intent = new Intent(context, MainActivity.class);
 
