@@ -100,13 +100,13 @@ public class NotificationJobService extends JobService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new NotificationCompat.Builder(context, Utilities.NOTIFICATION_CHANNEL_ID)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.wateringcan_notification)
+                    .setSmallIcon(R.drawable.wateringcan_notification2)
                     .setContentTitle("Watering Can")
                     .setContentText(notificationString);
         } else {
             builder = new NotificationCompat.Builder(context)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.wateringcan_notification)
+                    .setSmallIcon(R.drawable.wateringcan_notification2)
                     .setContentTitle("Watering Can")
                     .setContentText(notificationString);
         }

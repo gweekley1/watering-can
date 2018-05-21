@@ -8,8 +8,8 @@ android {
         applicationId "com.coconut.young.wateringcan"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 15
-        versionName "1.5"
+        versionCode 17
+        versionName "1.6"
     }
     buildTypes {
         release {
