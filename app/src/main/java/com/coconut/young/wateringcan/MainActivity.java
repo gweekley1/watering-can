@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "WateringCan";
     public static final String SHARED_PREFERENCES_NAME = "WateringCanPreferences";
+    private static final String DEBUG_ENABLED = "debugEnabled";
 
     private static List<PlantSchedule> scheduleList;
     public static PlantScheduleAdapter adapter;
@@ -50,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         scheduleList = Utilities.loadScheduleList(sharedPref);
 
-        createMenu(R.menu.popup_menu);
+        int menu = sharedPref.getBoolean(DEBUG_ENABLED, false) ? R.menu.popup_menu_full : R.menu.popup_menu;
+        createMenu(menu);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // The "Add a new PlantSchedule" button, opens the EditActivity
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 String name = data.getStringExtra("name");
                 // If the name of the new plant is DEBUG, expose the Debug menu option
                 if (DebugActivity.DEBUG.equals(name)) {
+                    sharedPref.edit().putBoolean(DEBUG_ENABLED, true).apply();
                     createMenu(R.menu.popup_menu_full);
                     return;
                 }

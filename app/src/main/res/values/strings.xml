@@ -33,9 +33,9 @@
     <string name="pref_notify">Notifications</string>
     <string name="pref_notify_key">pref_notify</string>
     <string name="pref_notify_summ">Display a reminder notification when plants should be watered</string>
-    <string name="pref_time">Reminder Time</string>
+    <string name="pref_time">Day\'s First Reminder Time</string>
     <string name="pref_time_key">pref_time</string>
-    <string name="pref_time_summ">When to display notifications</string>
+    <string name="pref_time_summ">When to start displaying notifications</string>
     <string name="pref_time_default">6:30</string>
     <string name="pref_freq">Reminder Frequency</string>
     <string name="pref_freq_key">pref_freq</string>

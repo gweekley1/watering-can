@@ -102,25 +102,33 @@ public class Utilities {
 
         SharedPreferences defaultSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String[] nextJobTimeStrings = defaultSharedPref.getString(
+        String[] firstJobOfDayStrings = defaultSharedPref.getString(
                 context.getResources().getString(R.string.pref_time_key), "6:30").split(":");
+        int firstJobOfDayHour = Integer.parseInt(firstJobOfDayStrings[0]);
+        int firstJobOfDayMinute = Integer.parseInt(firstJobOfDayStrings[1]);
+
         int jobFrequency = Integer.parseInt(defaultSharedPref.getString(
                 context.getResources().getString(R.string.pref_freq_key), "12"));
 
         // calculate the time of the next (PREF_TIME + n*PREF_FREQ) in the device's timezone
-        Calendar c = Calendar.getInstance();
-        Date currentTime = c.getTime();
-        c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(nextJobTimeStrings[0]));
-        c.set(Calendar.MINUTE, Integer.parseInt(nextJobTimeStrings[1]));
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
+        Calendar nextJob = Calendar.getInstance();
+        Date currentTime = nextJob.getTime();
+        nextJob.set(Calendar.HOUR_OF_DAY, firstJobOfDayHour);
+        nextJob.set(Calendar.MINUTE, firstJobOfDayMinute);
+        nextJob.set(Calendar.SECOND, 0);
+        nextJob.set(Calendar.MILLISECOND, 0);
 
-        while (currentTime.after(c.getTime())) {
-            c.setTimeInMillis(c.getTimeInMillis() + jobFrequency * HOUR_IN_MILLIS);
+        Date firstJobOfDay = nextJob.getTime();
+        if (currentTime.after(firstJobOfDay)) {
+            firstJobOfDay.setTime(firstJobOfDay.getTime() + 24 * HOUR_IN_MILLIS);
         }
-        long when = c.getTimeInMillis();
 
-        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, FULL_DATE_FORMAT.format(c.getTime())).apply();
+        while (currentTime.after(nextJob.getTime()) || firstJobOfDay.after(nextJob.getTime()) ) {
+            nextJob.setTimeInMillis(nextJob.getTimeInMillis() + jobFrequency * HOUR_IN_MILLIS);
+        }
+        long when = nextJob.getTimeInMillis();
+
+        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, FULL_DATE_FORMAT.format(nextJob.getTime())).apply();
 
         long millisBeforeNextJob = when - currentTime.getTime();
 
@@ -148,6 +156,7 @@ public class Utilities {
         // Schedule the job
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         assert jobScheduler != null;
+        jobScheduler.cancelAll();
         jobScheduler.schedule(jobInfo);
     }
 
