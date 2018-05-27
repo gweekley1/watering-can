@@ -118,12 +118,7 @@ public class Utilities {
         nextJob.set(Calendar.SECOND, 0);
         nextJob.set(Calendar.MILLISECOND, 0);
 
-        Date firstJobOfDay = nextJob.getTime();
-        if (currentTime.after(firstJobOfDay)) {
-            firstJobOfDay.setTime(firstJobOfDay.getTime() + 24 * HOUR_IN_MILLIS);
-        }
-
-        while (currentTime.after(nextJob.getTime()) || firstJobOfDay.after(nextJob.getTime()) ) {
+        while (currentTime.after(nextJob.getTime())) {
             nextJob.setTimeInMillis(nextJob.getTimeInMillis() + jobFrequency * HOUR_IN_MILLIS);
         }
         long when = nextJob.getTimeInMillis();

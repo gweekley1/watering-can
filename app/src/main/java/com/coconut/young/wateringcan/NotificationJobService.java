@@ -16,13 +16,10 @@ import android.util.Log;
 import com.coconut.young.wateringcan.settings.DebugActivity;
 import com.coconut.young.wateringcan.utils.Utilities;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static com.coconut.young.wateringcan.MainActivity.SHARED_PREFERENCES_NAME;
 import static com.coconut.young.wateringcan.PlantSchedule.ONE_DAY_IN_MILLIS;

@@ -10,7 +10,8 @@
         android:icon="@drawable/wateringcan2"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:fullBackupContent="@xml/backup_descriptor">
         <service
             android:name=".NotificationJobService"
             android:label="Notification Job Service"
