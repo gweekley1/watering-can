@@ -4,15 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.coconut.young.wateringcan.settings.DebugActivity;
+import com.coconut.young.wateringcan.settings.SettingsMenu;
 import com.coconut.young.wateringcan.utils.Utilities;
 
 import java.text.ParseException;
@@ -33,7 +35,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "WateringCan";
-    /*Package-Private*/ static final String SHARED_PREFERENCES_NAME = "WateringCanPreferences";
+    public static final String SHARED_PREFERENCES_NAME = "WateringCanPreferences";
 
     private static List<PlantSchedule> scheduleList;
     public static PlantScheduleAdapter adapter;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         scheduleList = Utilities.loadScheduleList(sharedPref);
 
+        createMenu(R.menu.popup_menu);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         // The "Add a new PlantSchedule" button, opens the EditActivity
         FloatingActionButton fab = findViewById(R.id.add_plant);
         assert fab != null;
@@ -60,21 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(myIntent, 1);
             }
         });
-
-        // The "Debug Menu" button, opens the DebugActivity.
-        // This button is invisible until the user names a plant "DEBUG"
-        ImageButton debugButton = findViewById(R.id.debug);
-        assert debugButton != null;
-        debugButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(MainActivity.this, DebugActivity.class);
-                myIntent.putExtra(DebugActivity.DEBUG_NEXT, sharedPref.getString(DebugActivity.DEBUG_NEXT, "N/A"));
-                myIntent.putExtra(DebugActivity.DEBUG_LAST, sharedPref.getString(DebugActivity.DEBUG_LAST, "N/A"));
-                startActivity(myIntent);
-            }
-        });
-        debugButton.setVisibility(ImageView.INVISIBLE);
 
         ListView listView = findViewById(android.R.id.list);
 
@@ -127,10 +117,9 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 String name = data.getStringExtra("name");
+                // If the name of the new plant is DEBUG, expose the Debug menu option
                 if (DebugActivity.DEBUG.equals(name)) {
-                    ImageButton debugButton = findViewById(R.id.debug);
-                    assert debugButton != null;
-                    debugButton.setVisibility(ImageButton.VISIBLE);
+                    createMenu(R.menu.popup_menu_full);
                     return;
                 }
 
@@ -170,6 +159,24 @@ public class MainActivity extends AppCompatActivity {
                 Utilities.saveScheduleList(sharedPref, scheduleList);
             }
         }
+    }
+
+    /**
+     * For a given Menu ID, add a SettingsMenu to the settings button
+     *
+     * @param menuId The menu to create
+     */
+    private void createMenu(final int menuId) {
+        final ImageButton settingsButton = findViewById(R.id.action_settings);
+        assert settingsButton != null;
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SettingsMenu settingsMenu = new SettingsMenu(MainActivity.this, settingsButton);
+                settingsMenu.getMenuInflater().inflate(menuId, settingsMenu.getMenu());
+                settingsMenu.show();
+            }
+        });
     }
 
 }

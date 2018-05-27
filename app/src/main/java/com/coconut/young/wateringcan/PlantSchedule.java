@@ -25,8 +25,7 @@ public class PlantSchedule {
     private boolean waterToday = false;
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
-    public static final int HALF_DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 12;
-    private static final int ONE_DAY_IN_MILLISECONDS = HALF_DAY_IN_MILLISECONDS * 2;
+    /*Package-Private*/ static final int ONE_DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
 
     /*
      * Constructor to build a plant schedule, evaluates and sets waterToday
@@ -40,10 +39,10 @@ public class PlantSchedule {
         // Ensure that the reference date is before the current date
         long currentTime = Calendar.getInstance().getTimeInMillis();
         while (currentTime < refDate.getTime()) {
-            refDate.setTime(refDate.getTime() - waterInterval * ONE_DAY_IN_MILLISECONDS);
+            refDate.setTime(refDate.getTime() - waterInterval * ONE_DAY_IN_MILLIS);
         }
         // Set the clock of the reference date to 6 am, which the app considers the start of the day
-        this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
+        this.refDate.setTime(refDate.getTime() - (refDate.getTime() % ONE_DAY_IN_MILLIS) + 1000 * 60 * 60 * 6);
         this.waterInterval = waterInterval;
         updateReferenceDate();
 
@@ -63,7 +62,7 @@ public class PlantSchedule {
             this.waterToday = json.getBoolean("water");
 
             Date tempRef = DATE_FORMAT.parse(json.getString("date"));
-            this.refDate.setTime(tempRef.getTime() - (tempRef.getTime() % ONE_DAY_IN_MILLISECONDS) + 1000 * 60 * 60 * 6);
+            this.refDate.setTime(tempRef.getTime() - (tempRef.getTime() % ONE_DAY_IN_MILLIS) + 1000 * 60 * 60 * 6);
         } catch (JSONException e) {
             Log.e(TAG, "Exception building PlantSchedule from JSON");
         } catch (ParseException e) {
@@ -115,7 +114,7 @@ public class PlantSchedule {
 
     private int getDaysAfterReferenceDate() {
         long timeDiff = Calendar.getInstance().getTimeInMillis() - refDate.getTime();
-        return (int) (timeDiff / ONE_DAY_IN_MILLISECONDS);
+        return (int) (timeDiff / ONE_DAY_IN_MILLIS);
     }
 
     /*

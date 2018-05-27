@@ -8,9 +8,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.coconut.young.wateringcan.DebugActivity;
+import com.coconut.young.wateringcan.settings.DebugActivity;
 import com.coconut.young.wateringcan.NotificationJobService;
 import com.coconut.young.wateringcan.PlantSchedule;
 import com.coconut.young.wateringcan.R;
@@ -25,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.coconut.young.wateringcan.MainActivity.TAG;
-import static com.coconut.young.wateringcan.PlantSchedule.HALF_DAY_IN_MILLISECONDS;
 
 public class Utilities {
 
@@ -33,7 +33,8 @@ public class Utilities {
 
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
 
-    private static final long FIFTEEN_MINUTES_IN_MILLIS = 1000*60*15;
+    private static final int HOUR_IN_MILLIS = 1000 * 60 * 60;
+    private static final long FIFTEEN_MINUTES_IN_MILLIS = 1000 * 60 * 15;
 
     /**
      * Converts scheduleList to a string and saves it in persistent storage
@@ -89,23 +90,30 @@ public class Utilities {
     }
 
     /**
-     * Schedule a job for the next 6:30 (am or pm) that will repeat approximately every 12 hours
+     * Schedule a job for the next (PREF_TIME + n*PREF_FREQ) that will repeat approximately every PREF_FREQ hours
      *
      * @param context The context to use to build Components and get Services
      * @param sharedPref the SharedPreferences to store the alarm execution debug info
      */
     public static void scheduleNextJob(Context context, SharedPreferences sharedPref) {
 
-        // calculate the time of the next 6:30 in the device's timezone
+        SharedPreferences defaultSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String[] nextJobTimeStrings = defaultSharedPref.getString(
+                context.getResources().getString(R.string.pref_time_key), "6:30").split(":");
+        int jobFrequency = Integer.parseInt(defaultSharedPref.getString(
+                context.getResources().getString(R.string.pref_freq_key), "12"));
+
+        // calculate the time of the next (PREF_TIME + n*PREF_FREQ) in the device's timezone
         Calendar c = Calendar.getInstance();
         Date currentTime = c.getTime();
-        c.set(Calendar.HOUR_OF_DAY,6);
-        c.set(Calendar.MINUTE,30);
-        c.set(Calendar.SECOND,0);
-        c.set(Calendar.MILLISECOND,0);
+        c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(nextJobTimeStrings[0]));
+        c.set(Calendar.MINUTE, Integer.parseInt(nextJobTimeStrings[1]));
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
 
         while (currentTime.after(c.getTime())) {
-            c.setTimeInMillis(c.getTimeInMillis() + HALF_DAY_IN_MILLISECONDS);
+            c.setTimeInMillis(c.getTimeInMillis() + jobFrequency * HOUR_IN_MILLIS);
         }
         long when = c.getTimeInMillis();
 
@@ -122,13 +130,13 @@ public class Utilities {
 
         ComponentName jobComponent = new ComponentName(context, NotificationJobService.class);
 
-        // Create JobInfo specifying that the job needs to run at a specific time, then every 12 hours
+        // Create JobInfo specifying that the job needs to run at a specific time, then every PREF_FREQ hours
         // The job is persistent and can be idle or not, charging or not, and on any network (or lack thereof)
         JobInfo jobInfo = new JobInfo.Builder(1, jobComponent)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE)
                 .setMinimumLatency(millisBeforeNextJob)
                 .setBackoffCriteria(FIFTEEN_MINUTES_IN_MILLIS, JobInfo.BACKOFF_POLICY_EXPONENTIAL)
-                .setOverrideDeadline(millisBeforeNextJob + HALF_DAY_IN_MILLISECONDS)
+                .setOverrideDeadline(millisBeforeNextJob + jobFrequency * HOUR_IN_MILLIS)
                 .setRequiresDeviceIdle(false)
                 .setRequiresCharging(false)
                 .setPersisted(true)

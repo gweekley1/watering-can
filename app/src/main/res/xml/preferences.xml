@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SwitchPreference
+        android:key="@string/pref_notify_key"
+        android:title="@string/pref_notify"
+        android:summary="@string/pref_notify_summ"
+        android:defaultValue="true" />
+    <com.coconut.young.wateringcan.settings.TimePreference
+        android:dependency="pref_notify"
+        android:key="@string/pref_time_key"
+        android:title="@string/pref_time"
+        android:summary="@string/pref_time_summ"
+        android:dialogTitle="@string/pref_time"
+        android:defaultValue="@string/pref_time_default" />
+    <ListPreference
+        android:dependency="pref_notify"
+        android:key="@string/pref_freq_key"
+        android:title="@string/pref_freq"
+        android:summary="@string/pref_freq_summ"
+        android:dialogTitle="@string/pref_freq"
+        android:entries="@array/pref_freq_titles"
+        android:entryValues="@array/pref_freq_values"
+        android:defaultValue="@string/pref_freq_default" />
+
+</PreferenceScreen>

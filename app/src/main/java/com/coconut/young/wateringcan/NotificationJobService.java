@@ -9,22 +9,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.coconut.young.wateringcan.settings.DebugActivity;
 import com.coconut.young.wateringcan.utils.Utilities;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static com.coconut.young.wateringcan.MainActivity.SHARED_PREFERENCES_NAME;
+import static com.coconut.young.wateringcan.PlantSchedule.ONE_DAY_IN_MILLIS;
 
 /**
  * This JobService loads the PlantSchedules from SharedPreferences, determines how many plants
  * need to be watered, and displays a notification if that number is > 0
- * This job is scheduled for every 6:30 AM and PM
+ * This job is scheduled for every PREF_TIME and every PREF_FREQ afterwards
+ * (Defaults are 6:30 AM and 12 hours, respectively)
  */
 public class NotificationJobService extends JobService {
 
@@ -36,15 +41,20 @@ public class NotificationJobService extends JobService {
         Log.i(TAG, "In NotificationJobService");
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
+        Date lastJob;
+        try {
+             lastJob = SimpleDateFormat.getDateInstance().parse(
+                    sharedPref.getString(DebugActivity.DEBUG_LAST, ""));
+        } catch (ParseException e) {
+            Log.w(TAG, "No recorded last alarm");
+            lastJob = new Date();
+            lastJob.setTime(lastJob.getTime() - ONE_DAY_IN_MILLIS);
+        }
 
         // Store the current time that the Job is running
         sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
 
         List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
-
-        SimpleDateFormat timeParser = new SimpleDateFormat("HH:mm", Locale.US);
-        String noonTime = "12:00";
-        String currentTime= timeParser.format(new Date());
 
         int numPlants = 0;
         for (PlantSchedule sched : scheduleList) {
@@ -53,15 +63,19 @@ public class NotificationJobService extends JobService {
 
             boolean alreadySet = sched.getWaterToday();
 
-            // if this is the 6:30 PM alarm and the plant should be watered today,
+            // if this is the day's first alarm and the plant should be watered today,
             // but waterToday is false, we assume that it has been watered and do not count it
-            if (!(currentTime.compareTo(noonTime) > 0 && !alreadySet) && sched.shouldWaterToday()) {
+            if (!(isToday(lastJob) && !alreadySet) && sched.shouldWaterToday()) {
                 sched.setWaterToday(true);
                 ++numPlants;
             }
         }
 
-        if (numPlants > 0) {
+        SharedPreferences defaultSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showNotification = defaultSharedPref.getBoolean(
+                this.getResources().getString(R.string.pref_notify_key), true);
+
+        if (showNotification && numPlants > 0) {
             displayNotification(numPlants, this);
             Utilities.saveScheduleList(sharedPref, scheduleList);
 
@@ -124,4 +138,23 @@ public class NotificationJobService extends JobService {
         notificationManager.notify(0, builder.build());
         Log.i(TAG, "Displayed notification");
     }
+
+
+    /**
+     * Determines whether or not a given Date is today
+     *
+     * @param date The Date to check
+     * @return whether or not the Date is today
+     */
+    private static boolean isToday(Date date){
+        Calendar today = Calendar.getInstance();
+        Calendar specifiedDate  = Calendar.getInstance();
+        specifiedDate.setTime(date);
+
+        return today.get(Calendar.DAY_OF_MONTH) == specifiedDate.get(Calendar.DAY_OF_MONTH)
+                &&  today.get(Calendar.MONTH) == specifiedDate.get(Calendar.MONTH)
+                &&  today.get(Calendar.YEAR) == specifiedDate.get(Calendar.YEAR);
+    }
+
+
 }

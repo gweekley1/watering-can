@@ -1,4 +1,4 @@
-package com.coconut.young.wateringcan;
+package com.coconut.young.wateringcan.settings;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.coconut.young.wateringcan.R;
 
 /**
  * The Activity used to view debug information on the app's alarms and version
@@ -51,7 +53,7 @@ public class DebugActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.popup_menu, menu);
         return true;
     }
 
