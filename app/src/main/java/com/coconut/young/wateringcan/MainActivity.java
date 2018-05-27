@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         Utilities.createNotificationChannel(this);
 
         // set up the alarm intent to update every schedule's icon
-       Utilities.scheduleNextJob(MainActivity.this,sharedPref);
+        Utilities.scheduleNextJob(MainActivity.this,sharedPref);
     }
 
     @Override

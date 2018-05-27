@@ -16,14 +16,17 @@ import android.util.Log;
 import com.coconut.young.wateringcan.settings.DebugActivity;
 import com.coconut.young.wateringcan.utils.Utilities;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.coconut.young.wateringcan.MainActivity.SHARED_PREFERENCES_NAME;
 import static com.coconut.young.wateringcan.PlantSchedule.ONE_DAY_IN_MILLIS;
+import static com.coconut.young.wateringcan.utils.Utilities.FULL_DATE_FORMAT;
 
 /**
  * This JobService loads the PlantSchedules from SharedPreferences, determines how many plants
@@ -41,18 +44,18 @@ public class NotificationJobService extends JobService {
         Log.i(TAG, "In NotificationJobService");
         SharedPreferences sharedPref = this.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        Date lastJob;
+        Date lastJobDate;
         try {
-             lastJob = SimpleDateFormat.getDateInstance().parse(
+             lastJobDate = FULL_DATE_FORMAT.parse(
                     sharedPref.getString(DebugActivity.DEBUG_LAST, ""));
         } catch (ParseException e) {
             Log.w(TAG, "No recorded last alarm");
-            lastJob = new Date();
-            lastJob.setTime(lastJob.getTime() - ONE_DAY_IN_MILLIS);
+            lastJobDate = new Date();
+            lastJobDate.setTime(lastJobDate.getTime() - ONE_DAY_IN_MILLIS);
         }
 
         // Store the current time that the Job is running
-        sharedPref.edit().putString(DebugActivity.DEBUG_LAST, new Date().toString()).apply();
+        sharedPref.edit().putString(DebugActivity.DEBUG_LAST, FULL_DATE_FORMAT.format(new Date())).apply();
 
         List<PlantSchedule> scheduleList = Utilities.loadScheduleList(sharedPref);
 
@@ -65,7 +68,7 @@ public class NotificationJobService extends JobService {
 
             // if this is the day's first alarm and the plant should be watered today,
             // but waterToday is false, we assume that it has been watered and do not count it
-            if (!(isToday(lastJob) && !alreadySet) && sched.shouldWaterToday()) {
+            if (!(isToday(lastJobDate) && !alreadySet) && sched.shouldWaterToday()) {
                 sched.setWaterToday(true);
                 ++numPlants;
             }

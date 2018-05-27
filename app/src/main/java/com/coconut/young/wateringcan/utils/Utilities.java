@@ -20,10 +20,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.coconut.young.wateringcan.MainActivity.TAG;
 
@@ -32,6 +34,7 @@ public class Utilities {
     public static final String NOTIFICATION_CHANNEL_ID = "WateringCanChannel";
 
     private static final String PERSISTENT_SCHEDULES = "savedSchedules";
+    public static final SimpleDateFormat FULL_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.getDefault());
 
     private static final int HOUR_IN_MILLIS = 1000 * 60 * 60;
     private static final long FIFTEEN_MINUTES_IN_MILLIS = 1000 * 60 * 15;
@@ -117,7 +120,7 @@ public class Utilities {
         }
         long when = c.getTimeInMillis();
 
-        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, c.getTime().toString()).apply();
+        sharedPref.edit().putString(DebugActivity.DEBUG_NEXT, FULL_DATE_FORMAT.format(c.getTime())).apply();
 
         long millisBeforeNextJob = when - currentTime.getTime();
 
